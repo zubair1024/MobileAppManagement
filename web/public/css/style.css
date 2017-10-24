@@ -858,6 +858,10 @@ th {
     padding: 0;
 }
 
+.btn{
+    background-color: #df1514;
+}
+
 .admin-btns{
     margin-bottom: 6rem;
 }

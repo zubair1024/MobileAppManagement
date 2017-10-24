@@ -1,137 +1,36 @@
 <template>
-  <!--Statistical Cards start-->
-  <div id="card-stats">
-    <div class="row">
-      <div class="col s12 m6 l3">
-        <div class="card">
-          <div class="card-content blue darken-4 white-text">
+    <div id="error-page">
+        
             <div class="row">
-              <div class="col s3">
-                <i class="mdi-av-timer medium"></i>
-              </div>
-              <div class="col s9">
-                <h4 class="card-stats-number">${opStatistics.operationalToday}</h4>
-                <p class="card-stats-title">Operational today</p>
-              </div>
-            </div>
-          </div>
-          <div class="card-action blue darken-4" show.bind="opStatisticsPrevious">
-            <div id="clients-bar">
-              <p class="card-stats-compare"> <span class="green-text text-lighten-5"><i class="mdi-hardware-keyboard-arrow-${(opStatistics.operationalToday - opStatisticsPrevious.operationalToday) > 0 ? 'up' : 'down'}"></i> ${(opStatistics.operationalToday - opStatisticsPrevious.operationalToday)*100}% since yesterday</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col s12 m6 l3">
-        <div class="card">
-          <div class="card-content  blue darken-3 white-text">
-            <div class="row">
-              <div class="col s3">
-                <i class="mdi-maps-beenhere medium"></i>
-              </div>
-              <div class="col s9">
-                <h4 class="card-stats-number">${opStatistics.readyForDeployment}</h4>
-                <p class="card-stats-title">Ready to be deployed</p>
-              </div>
-            </div>
-          </div>
-          <div class="card-action blue darken-3" show.bind="opStatisticsPrevious">
-            <div id="sales-compositebar">
-              <p class="card-stats-compare"> <span class="green-text text-lighten-5"><i class="mdi-hardware-keyboard-arrow-${(opStatistics.readyForDeployment - opStatisticsPrevious.readyForDeployment) > 0  ? 'up' : 'down'}"></i> ${(opStatistics.readyForDeployment - opStatisticsPrevious.readyForDeployment)*100}% from yesterday</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col s12 m6 l3">
-        <div class="card">
-          <div class="card-content  blue darken-2 white-text">
-            <div class="row">
-              <div class="col s3">
-                <i class="mdi-maps-local-pharmacy medium"></i>
-              </div>
-              <div class="col s9">
-                <h4 class="card-stats-number">${opStatistics.maintenance}</h4>
-                <p class="card-stats-title">In maintenance</p>
+              <div class="col s12">
+                <div class="browser-window">
+                  <div class="top-bar">
+                    <div class="circles">
+                      <div id="close-circle" class="circle"></div>
+                      <div id="minimize-circle" class="circle"></div>
+                      <div id="maximize-circle" class="circle"></div>
+                    </div>
+                  </div>
+                  <div class="content">
+                    <div class="row">
+                      <div id="site-layout-example-top" class="col s12">
+                        <p class="flat-text-logo center white-text caption-uppercase"></p>
+                      </div>
+                      <div id="site-layout-example-right" class="col s12 m12 l12">
+                        <div class="row center">
+                          <h1 class="text-long-shadow col s12">Hello!</h1>
+                        </div>
+                        <div class="row center">
+                          <p class="center white-text col s12">Welcome to 247HomeRescueApp Management Portal</p>
+                          <!-- <p class="center s12"><button onclick="goBack()" class="btn waves-effect waves-light">Ad Management</button> <a href="index.html" class="btn waves-effect waves-light">Email Service</a> -->
+                            </p><p>
+                            </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="card-action blue darken-2" show.bind="opStatisticsPrevious">
-            <div id="profit-tristate">
-              <p class="card-stats-compare"> <span class="green-text text-lighten-5"><i class="mdi-hardware-keyboard-arrow-${(opStatistics.maintenance - opStatisticsPrevious.maintenance) > 0 ? 'up' : 'down'}"></i> ${(opStatistics.maintenance - opStatisticsPrevious.maintenance)*100}% from yesterday</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col s12 m6 l3">
-        <div class="card">
-          <div class="card-content blue darken-1 white-text">
-            <div class="row">
-              <div class="col s3">
-                <i class="mdi-content-report medium"></i>
-              </div>
-              <div class="col s9">
-                <h4 class="card-stats-number">${opStatistics.toBeServiced}</h4>
-                <p class="card-stats-title">To be serviced</p>
-              </div>
-            </div>
-          </div>
-          <div class="card-action  blue darken-1" show.bind="opStatisticsPrevious">
-            <div id="invoice-line">
-              <p class="card-stats-compare"> <span class="green-text text-lighten-5"><i class="mdi-hardware-keyboard-arrow-${(opStatistics.toBeServiced - opStatisticsPrevious.toBeServiced) > 0 ? 'up' : 'down'}"></i> ${(opStatistics.toBeServiced - opStatisticsPrevious.toBeServiced)*100}% from yesterday</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!--Statistical Cards end-->
-  <!--Power Output Bar start-->
-  <div class="card waves-effect waves-block waves-light">
-    <div show.bind='loadingPowerOutputBar' class="k-loading-mask" style="width:100%;height:100%"><span class="k-loading-text">Loading...</span>
-      <div class="k-loading-image">
-        <div class="k-loading-color"></div>
-      </div>
-    </div>
-    <div class="card-content">
-      <div id="powerOutputBar"></div>
-    </div>
-  </div>
-  <!--Power Output Bar start-->
-  <!--Overview Map start-->
-  <div class="card">
-    <!--<div class="card-content">-->
-    <div show.bind='loadingMap' class="k-loading-mask" style="width:100%;height:100%"><span class="k-loading-text">Loading...</span>
-      <div class="k-loading-image">
-        <div class="k-loading-color"></div>
-      </div>
-    </div>
-    <div id="overviewMap" style="height: 400px"></div>
-    <div ref="legend"></div>
-    <!--</div>-->
-  </div>
-  <!--Overview Map end-->
-  <div class="row">
-    <div class="col s12 m6 l6">
-      <!--Operational Pie start-->
-      <div class="card waves-effect waves-block waves-light">
-        <div show.bind='loadingliveOperationalStatisticsPie' class="k-loading-mask" style="width:100%;height:100%"><span class="k-loading-text">Loading...</span>
-          <div class="k-loading-image">
-            <div class="k-loading-color"></div>
-          </div>
-        </div>
-        <div class="card-content">
-          <canvas id="operationalPie"></canvas>
-        </div>
-      </div>
-      <!--Operational Pie end-->
-    </div>
-    <div class="col s12 m6 l6">
-      <!--Mini Alarms start-->
-      <div class="card">
-        <div class="collapsible-header active red darken-4 white-text"><i class="mdi-alert-warning"></i>Recent Alarms</div>
-        <div id="miniAlarms"></div>
-      </div>
-      <!--Mini Alarms end-->
-    </div>
-  </div>
 </template>
