@@ -1,0 +1,26 @@
+{
+  "name": "titan",
+  "version": "0.1.0",
+  "description": "A titan of an application",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev:install": "npm --prefix ./com install ./com && npm --prefix ./web install ./web && npm --prefix ./etl install ./etl",
+    "dev:start": "code . && (cd ./com && code .) && (cd ../etl && code .) && (cd ../web && code .) && (cd ../web/public/ && code .) && npm run dev:watch",
+    "preinstall": "npm i -g pm2 && npm i -g frontail",
+    "linux:tail": "frontail /root/.pm2/logs/com-out-1.log -d -p 9001 -t dark && frontail /root/.pm2/logs/web-out-1.log -d -p 9002 -t dark && frontail /root/.pm2/logs/etl-out-1.log -d -p 9003 -t dark",
+    "tail": "frontail ~/.pm2/logs/com-out-1.log -d -p 9001 -t dark && frontail ~/.pm2/logs/web-out-1.log -d -p 9002 -t dark && frontail ~/.pm2/logs/etl-out-1.log -d -p 9003 -t dark",
+    "start": "pm2 start ./com/index.js -i 1 --name com && pm2 start ./web/app.js --name web -i 1 && pm2 start ./etl/etl.js --name etl -i 1",
+    "stop": "pm2 stop com && pm2 stop web && pm2 stop etl",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zubair Ahmed",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^2.2.29",
+    "mongoose": "^4.11.0",
+    "mongoose-paginate": "^5.0.3"
+  }
+}

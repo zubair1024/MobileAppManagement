@@ -1,0 +1,61 @@
+<template>
+    <!--Tags search start-->
+    <div class="row">
+        <div class="input-field col s12">
+            <div id="list-tags"></div>
+        </div>
+    </div>
+    <!--Tags search end-->
+    <!--Asset List start-->
+    <div class="card">
+        <div id="projectGrid"></div>
+        <script type="text/x-kendo-template" id="template">
+            <div class="row">
+                <div class="col s0 m12 l6">
+                    <ul id="projects-collection" class="collection">
+                        <li class="collection-item avatar">
+                            <span class="secondary-content">
+                  <div class="row">
+                      <div class="col s6">
+                        <a class="btn waves-effect waves-light btn-small cyan"  href='\\#asset-list/#:_id#'>View</a>
+                      </div>
+                      <div class="col s5" style="display: #=(App.currentUser.privileges.indexOf(2) > -1)? 'hidden':'none'#">
+                        <a class="btn btn-small waves-effect waves-light cyan darken-4" href='\\#project-admin?id=#:_id#'>Edit</a>
+                      </div>
+                    </div>
+                </span>
+                        </li>
+                        <li class="collection-item grid-details-item">
+                            <div class="row">
+                                <div class="col s6">
+                                    <p class="collections-content">Name</p>
+                                </div>
+                                <div class="col s6">
+                                    <p class="collections-content">#:name || '-'#</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="collection-item grid-details-item">
+                            <div class="row">
+                                <div class="col s6">
+                                    <p class="collections-content">Tags</p>
+                                </div>
+                                <div class="col s6">
+                                    <p class="collections-content">
+                                        <!--<span class="task-cat cyan">#: tags #</span> -->
+                                        #if(typeof data.tags != 'undefined') {# #for (var i=0,len=data.tags.length; i
+                                        <len;i++){ # <span class="task-cat cyan">#: tags[i] #</span>
+                                            # } # # } #
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </script>
+    </div>
+    <!--Asset List end-->
+    <!-- stats end-->
+
+</template>

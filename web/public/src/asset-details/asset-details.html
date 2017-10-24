@@ -1,0 +1,515 @@
+<template>
+  <require from="../map/map"></require>
+  <div show.bind="loading" class="loader">
+    <!--Loader-->
+    <div class="row">
+      <div class="col s12 m12 l12">
+        <div class="progress">
+          <div class="indeterminate"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div show.bind="!loading">
+    <div class="k-content">
+      <!--Tab Strip-->
+      <div id="tabstrip">
+        <ul>
+          <li class="k-state-active">
+            Attributes
+          </li>
+          <li click.delegate='renderEvents()'>
+            Events
+          </li>
+          <li click.delegate='renderAssetAlarms()'>
+            Alarms
+          </li>
+        </ul>
+        <div>
+          <!--Attributes Start-->
+          <div id="details" class="col s12">
+            <!--Card stats start-->
+            <div id="card-stats">
+              <div class="row">
+                <div class="col s12 m4 l4">
+                  <div class="card">
+                    <div class="card-content  blue darken-4 white-text">
+                      <div class="row">
+                        <div class="col s3">
+                          <i class="mdi-image-flash-on medium"></i>
+                        </div>
+                        <div class="col s9">
+                          <p class="card-stats-title">
+                            Average power output
+                          </p>
+                          <h4 class="card-stats-number">${stats.averagePowerOutput}</h4>
+                          <p class="card-stats-compare" show.bind="!stats.controls.averagePowerOutput"><span class="green-text text-lighten-5">past 24 hours</span></p>
+                          <p class="card-stats-compare" show.bind="stats.controls.averagePowerOutput"><span class="green-text text-lighten-5">past 7 days</span></p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-action">
+                      <div class="switch card-switch" click.delegate="toggleStats('averagePowerOutput')">
+                        <label class="black-text">Day
+                          <input type="checkbox"  checked.one-way="stats.controls.averagePowerOutput">
+                          <span class="lever"></span> 
+                          Week
+                          </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col s12 m4 l4">
+                  <div class="card">
+                    <div class="card-content  blue darken-3 white-text">
+                      <div class="row">
+                        <div class="col s3">
+                          <i class="mdi-maps-local-drink medium"></i>
+                        </div>
+                        <div class="col s9">
+                          <p class="card-stats-title">
+                            Average fuel consumed
+                          </p>
+                          <h4 class="card-stats-number">${stats.averageFuelConsumed}</h4>
+                          <p class="card-stats-compare" show.bind="!stats.controls.averageFuelConsumed"><span class="green-text text-lighten-5">past 24 hours</span></p>
+                          <p class="card-stats-compare" show.bind="stats.controls.averageFuelConsumed"><span class="green-text text-lighten-5">past 7 days</span></p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-action">
+                      <div class="switch card-switch" click.delegate="toggleStats('averageFuelConsumed')">
+                        <label class="black-text">Day
+                          <input type="checkbox" checked.one-way="stats.controls.averageFuelConsumed">
+                          <span class="lever"></span> 
+                          Week
+                          </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col s12 m4 l4">
+                  <div class="card">
+                    <div class="card-content  blue darken-4 white-text">
+                      <div class="row">
+                        <div class="col s3">
+                          <i class="mdi-action-restore medium"></i>
+                        </div>
+                        <div class="col s9">
+                          <p class="card-stats-title">
+                            Average running hours
+                          </p>
+                          <h4 class="card-stats-number">8 hrs/day</h4>
+                          <p class="card-stats-compare"><span class="green-text text-lighten-5">past 7 days</span></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--Card stats end-->
+            <!--Map and Asset details start-->
+            <div class="row">
+              <!--Asset Status start-->
+              <div class="col s12 m6 l6">
+                <!--Genset Status start-->
+                <div class="card horizontal">
+                  <div class="collapsible-header active"><i class="mdi-image-remove-red-eye"></i>Asset Status</div>
+                  <div class="row" style="text-align: center;">
+                    <div class="col s12 m3 l3">
+                      <i class="mdi-image-flash-on medium green-text" id="runningStatusIcon"></i>
+                      <p>Running</p>
+                    </div>
+                    <div class="col s12 m3 l3">
+                      <i class="mdi-image-filter-tilt-shift medium red-text"></i>
+                      <p>Oil Check</p>
+                    </div>
+                    <div class="col s12 m3 l3">
+                      <i class="mdi-maps-local-hospital medium green-text"></i>
+                      <p>Health Check</ph5>
+                    </div>
+                    <div class="col s12 m3 l3">
+                      <i class="mdi-content-report medium gray-text lighten-4-text"></i>
+                      <p>Fault Report</p>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col s12 m12 l12">
+                      <!--fuel level Guage start-->
+                      <div id="gauge-container" style="text-align: center;">
+                        <div id="gauge" style=" display: inline-block;"></div>
+                        <p>Fuel Level</p>
+                      </div>
+                      <!--fuel level Guage end-->
+                    </div>
+                  </div>
+                </div>
+                <!--Commands Section start-->
+                <div class="col s12 m6 l6">
+                  <div class="card">
+                    <div class="card-content indigo white-text commandBox">
+                      <div class="row">
+                        <div class="col s3">
+                          <i class="mdi-image-flash-on medium"></i>
+                        </div>
+                        <div class="col s9">
+                          <p class="card-stats-title">
+                            Remote Start/Stop
+                          </p>
+                          <h4 class="card-stats-number">${commands.remoteStartStop.status}</h4>
+                          <p class="card-stats-compare"><span>${commands.remoteStartStop.timestamp}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-action  indigo darken-4 commandBoxBtns">
+                      <div id="invoice-line">
+                        <div class="row">
+                          <div class="col s6 m6 l6">
+                            <a class="btn medium indigo white-text" id="remoteStart" ref="remoteStart" click.trigger="sendRemoteCommand('remoteStart')">Start</a>
+                          </div>
+                          <div class="col s6 m6 l6">
+                            <a class="btn medium indigo white-text" id="remoteStop" ref="remoteStop" click.trigger="sendRemoteCommand('remoteStop')">Stop</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col s12 m6 l6">
+                  <div class="card">
+                    <div class="card-content indigo white-text commandBox">
+                      <div class="row">
+                        <div class="col s3">
+                          <i class="mdi-notification-sync-problem medium"></i>
+                        </div>
+                        <div class="col s9">
+                          <p class="card-stats-title">
+                            Ping
+                          </p>
+                          <h4 class="card-stats-number">Response</h4>
+                          <p class="card-stats-compare"><span>${commands.ping.timestamp}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-action  indigo darken-4 commandBoxBtns">
+                      <div id="invoice-line">
+                        <div class="row">
+                          <div class="col s6 m12 l12">
+                            <a class="btn medium indigo white-text" click.trigger="remotePingCommand()">Ping</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--Commands Section end-->
+                <!--Genset Status end-->
+              </div>
+              <!--Asset Status end-->
+              <!--Asset Details start-->
+              <div class="col s12 m6 l6">
+                <ul materialize="collapsible" class="collapsible" data-collapsible="expandable" [materializeParams]="params">
+                  <li>
+                    <div class="collapsible-header active"><i class="mdi-action-info"></i>Asset Information</div>
+                    <div class="collapsible-body">
+                      <!--Asset Attributes List start-->
+                      <div class="row">
+                        <div class="col s12 m12 l12">
+                          <ul id="projects-collection" class="collection">
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Asset Name</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">${model.name|| '-'}</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Status</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">${model.status|| '-'}</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Total Engine Hours</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">${model.engineHours|| '-'}</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Coolant Temperature</p>
+                                </div>
+                                <div class="col s6">
+                                  <p class="collections-content">${model.engineCoolantTemperature|| '-'}</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Fuel Used since last engine on</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <!--<p class="collections-content">${model.yearOfManufacture}</p>-->
+                                  <p class="collections-content">25 L</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Power Rating</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <!--<p class="collections-content">${model.powerRating}</p>-->
+                                  <p class="collections-content">50 kVA</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Oil Pressure</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <!--<p class="collections-content">${model.generatorEngineRating}</p>-->
+                                  <p class="collections-content">2.7 bar</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Batery Voltage</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <!--<p class="collections-content">${model.generatorFrequency}</p>-->
+                                  <p class="collections-content">25.3 V</p>
+                                </div>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      <!--Asset Attributes List start-->
+                    </div>
+                  </li>
+                  <li>
+                    <div class="collapsible-header"><i class="mdi-action-speaker-notes"></i>Extra Information</div>
+                    <div class="collapsible-body">
+                      <!--Asset Event Status List start-->
+                      <div class="row">
+                        <div class="col s12 m12 l12">
+                          <ul id="projects-collection" class="collection">
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Control Panel Manufacturer</p>
+                                </div>
+                                <div class="col s6">
+                                  <p class="collections-content">${model.controlPanelManufacturer}</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Year of Manufacture</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">${model.yearOfManufacture}</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Power Rating</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">${model.powerRating}</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Generator Engine Rating</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">${model.generatorEngineRating}</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Generator Frequency</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">${model.generatorFrequency}</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Tags</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">
+                                    <div repeat.for="item of model.tags">
+                                      <span class="task-cat cyan">${item}</span>
+                                    </div>
+                                  </p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Projects</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">
+                                    <div repeat.for="item of model._projects">
+                                      <span class="task-cat cyan">${item.name}</span>
+                                    </div>
+                                  </p>
+                                </div>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      <!--Asset Event Status List start-->
+                    </div>
+                  </li>
+                  <li>
+                    <div class="collapsible-header"><i class="mdi-action-track-changes"></i>Maintenance Information</div>
+                    <div class="collapsible-body">
+                      <!--Asset Maintenance List start-->
+                      <div class="row">
+                        <div class="col s12 m12 l12">
+                          <ul id="projects-collection" class="collection">
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Last performed service</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <!--<p class="collections-content">${model.assetName}</p>-->
+                                  <p class="collections-content">430</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Service Interval</p>
+                                </div>
+                                <div class="col s6">
+                                  <!--<p class="collections-content">${model.controlPanelManufacturer}</p>-->
+                                  <p class="collections-content">400</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Next Service Due</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <!--<p class="collections-content">${model.yearOfManufacture}</p>-->
+                                  <p class="collections-content">830</p>
+                                </div>
+                              </div>
+                            </li>
+                            <li class="collection-item">
+                              <div class="row">
+                                <div class="col s6 l6 m6">
+                                  <p class="collections-content">Comments</p>
+                                </div>
+                                <div class="col s6 l6 m6">
+                                  <!--<p class="collections-content">${model.powerRating}</p>-->
+                                  <p class="collections-content">Deployed and service is on schedule</p>
+                                </div>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      <!--Asset Maintenance List start-->
+                    </div>
+                  </li>
+                </ul>
+                <!--collapsible end-->
+              </div>
+              <!--Asset Details end-->
+            </div>
+            <!--Map and Asset details end-->
+            <div class="row">
+              <!--Overview Map start-->
+              <div class="col s12 m12 l12">
+                <div class="cards">
+                  <div class="card-content">
+                    <div id="assetOverviewMap" style="height: 550px"></div>
+                    <div ref="legend"></div>
+                  </div>
+                </div>
+              </div>
+              <!--Overview Map end-->
+            </div>
+            <!--Line Graph Start-->
+            <div class="row">
+              <div class="col s12 m12 l12">
+                <div class="card cyan darken-1">
+                  <div class="card-content waves-effect waves-block waves-light">
+                    <div class="move-up">
+                      <div>
+                        <span class="chart-title white-text">Power Output</span>
+                        <div class="chart-revenue white-text">
+                          <p class="chart-revenue-total">52 kVA/Hr</p>
+                          <!--<p class="chart-revenue-per"><i class="mdi-navigation-arrow-drop-up"></i> 21.80 %</p>-->
+                        </div>
+                      </div>
+                      <div class="trending-line-chart-wrapper">
+                        <canvas id="powerOutputLine" height="204" width="449" style="width: 449px; height: 104px;"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--Line Graph End-->
+          </div>
+          <!--Attributes End-->
+        </div>
+        <div>
+          <!--Events Start-->
+          <div id="eventGrid"></div>
+          <!--Events End-->
+        </div>
+        <div>
+          <div class="card waves-effect waves-block waves-light">
+            <div class="collapsible-header active red darken-4 white-text"><i class="mdi-alert-warning"></i>Recent Alarms</div>
+            <div id="assetAlarms" ref="assetAlarms"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</template>

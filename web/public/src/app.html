@@ -1,0 +1,35 @@
+<template>
+  <require from="./app.css"></require>
+  <require from="./app-header/app-header"></require>
+  <require from="./app-navbar/app-navbar"></require>
+  <require from="./app-notifications/app-notifications"></require>
+  <require from="./app-footer/app-footer"></require>
+  <app-header></app-header>
+  <!--<require from="bootstrap/css/bootstrap.css"></require>-->
+  <!-- START MAIN -->
+  <div id="main">
+    <!-- START WRAPPER -->
+    <div class="wrapper">
+      <!-- START LEFT SIDEBAR NAV-->
+      <app-navbar></app-navbar>
+      <!-- END LEFT SIDEBAR NAV-->
+      <!-- START CONTENT -->
+      <section id="content">
+        <!--start container-->
+        <div class="container">
+          <div class="section">
+            
+            <!--<router-outlet name="dash"></router-outlet>-->
+            <router-view></router-view>
+          </div>
+        </div>
+        <!--end container-->
+      </section>
+      <!-- END CONTENT -->
+      <app-notifications></app-notifications>
+    </div>
+    <!-- END WRAPPER -->
+  </div>
+  <!-- END MAIN -->
+  <app-footer></app-footer>
+</template>

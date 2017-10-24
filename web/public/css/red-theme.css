@@ -1,0 +1,9 @@
+/*HEADER*/
+#headerNavBar{
+    background-color: #f44336
+}
+
+ul.side-nav.fixed li.user-details {
+    background: #000;
+    background-color:  #f44336 !important
+}

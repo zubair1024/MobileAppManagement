@@ -1,0 +1,56 @@
+<template>
+    <div show.bind="loading" class="loader">
+        <!--Loader start-->
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="progress">
+                    <div class="indeterminate">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Loader end-->
+    </div>
+    <div show.bind="!loading">
+        <!--Project Attributes start-->
+        <div class="row">
+            <div class="col s12 m7 l7">
+                <div class="card-panel">
+                    <h4 class="header2">Project Attributes</h4>
+                    <div class="row">
+                        <form class="col s12">
+                            <div class="row">
+                                <div class="input-field col s12">Project Name
+                                    <input id="project_name" type="text" value.bind="model.name" name="name" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <div id="project-tags"></div>
+                                </div>
+                                <div class="input-field col s12">
+                                    <select id="project-assets" ref="projectAssets" multiple="multiple" data-placeholder="Select Gensets..."></select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="row">
+        <div class="input-field col s12 m7 l7">
+          <!--<div class="card">-->
+          <div class="admin-btns">
+            <div show.bind="!update">
+              <button class="btn cyan waves-effect waves-light right" name="action" click.delegate="submit()">Create</button>
+            </div>
+            <div show.bind="update">
+              <button class="btn blue waves-effect waves-light right" name="action" click.delegate="submit()">Update</button>
+              <button class="btn red waves-effect waves-light" click.delegate="delete()">Delete</button>
+            </div>
+          </div>
+          <!--</div>-->
+        </div>
+      </div>
+    </div>
+</template>

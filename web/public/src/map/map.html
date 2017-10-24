@@ -1,0 +1,133 @@
+<template>
+  <div show.bind="loading" class="loader">
+    <!--Loader-->
+    <div class="row">
+      <div class="col s12 m12 l12">
+        <div class="progress">
+          <div class="indeterminate"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div show.bind="!loading">
+    <div class="row">
+      <div class="col s12 m8 l8">
+        <!--Google Map Card start-->
+        <div class="card">
+          <div id="map" style="height: 750px"></div>
+          <div ref="legend"></div>
+        </div>
+        <!--Google Map Card end-->
+      </div>
+      <div class="col s12 m4 l4">
+        <ul class="collapsible" data-collapsible="accordion">
+          <li>
+            <div class="collapsible-header active">Assets</div>
+            <div class="collapsible-body">
+              <div class="card">
+                <div class="card-content">
+                  <select id="markerSelect" data-placeholder="Select Assets..."></select>
+                  <div class="input-field s6">
+                    <a class="btn cyan darken-1 waves-effect waves-light" click.delegate="filterMarkers()">Filter</a>
+                    <a class="btn cyan darken-2 waves-effect waves-light" click.delegate="renderAssetMarkers()">All</a>
+                  </div>
+                  <div class="input-field ">
+                    <input type="checkbox" class="filled-in" id="autoRefresh" checked.bind="mapControl.autoRefresh" change.delegate="toggleRefresher($event)"
+                    />
+                    <label for="autoRefresh">Auto-Refresh</label>
+                  </div>
+                  <div class="input-field">
+                    <input type="checkbox" class="filled-in" id="autoPan" checked.bind="mapControl.autoPan" />
+                    <label for="autoPan">Auto-Pan</label>
+                  </div>
+                  <div class="input-field">
+                    <input type="checkbox" class="filled-in" id="clustering" checked.bind="mapControl.autoCluster" change.delegate="toggleClusterer($event)"
+                    />
+                    <label for="clustering">Custering</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="collapsible-header">Locations</div>
+            <div class="collapsible-body">
+              <!--Location Creation Model start-->
+              <div show.bind="locationCreation">
+                <div class="card">
+                  <blockquote>
+                    <i>Drop a marker on the map to create a location</i>
+                  </blockquote>
+                  <div class="card-content">
+                    <div class="input-field s6">
+                      <div class="input-field col s12">Name
+                        <input id="locationName_input" type="text" value.bind="newLocation.name" required>
+                      </div>
+                      <div class="input-field col s12">Type
+                        <input id="locationType_input" ref="locationTypes" value="1" style="width: 100%;" />
+                      </div>
+                      <div class="input-field col s12">Latitude
+                        <input id="locationLatitude_input" type="text" value.bind="newLocation.latitude" required>
+                      </div>
+                      <div class="input-field col s12">Longitude
+                        <input id="locationLongitude_input" type="text" value.bind="newLocation.longitude" required>
+                      </div>
+                      <a class="btn small cyan darken-1 waves-effect waves-light" click.delegate="createLocation()">Create</a>
+                      <a class="btn small cyan darken-2 waves-effect waves-light" click.delegate="hideLocationCreationModel()">Cancel</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--Location Creation Model end-->
+              <!--Locations-->
+              <div class="card">
+                <div class="card-content">
+                  <div class="input-field s6">
+                    <a class="btn small cyan darken-1 waves-effect waves-light" click.delegate="selectLocation()">Show</a>
+                    <a class="btn small cyan darken-2 waves-effect waves-light" click.delegate="showLocationCreationModel()" show.bind="App.currentUser.privileges.indexOf(3) > -1">Create</a>
+                  </div>
+                </div>
+                <div id="location-tree"></div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="collapsible-header">Geofences</div>
+            <div class="collapsible-body">
+              <!--Location Creation Model start-->
+              <div show.bind="geofenceCreation">
+                <div class="card">
+                  <div class="card-content">
+                    <div class="input-field s6">
+                      <div class="input-field col s12">Name
+                        <input id="geofenceName_input" type="text" value.bind="newGeofence.name" required>
+                      </div>
+                      <div class="input-field col s12">Location
+                         <select id="geofence-location" ref="geofenceLocation" multiple="multiple" data-placeholder="Search..."></select>
+                       </div>
+                      <div class="input-field col s12">Type
+                        <input id="geofenceType_input" ref="geofenceTypes" value="1" style="width: 100%;" /><br><br>
+                      </div>
+                      <a class="btn small cyan darken-1 waves-effect waves-light" click.delegate="createGeofence()">Create</a>
+                      <a class="btn small cyan darken-2 waves-effect waves-light" click.delegate="hideGeofenceCreationModel()">Cancel</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--Location Creation Model end-->
+              <div class="card">
+                <div class="card-content">
+                 <div class="input-field s6">
+                    <a class="btn small cyan darken-1 waves-effect waves-light" click.delegate="selectGeofence()">Show</a>
+                    <a class="btn small cyan darken-2 waves-effect waves-light" click.delegate="showGeofenceCreationModel()" show.bind="App.currentUser.privileges.indexOf(4) > -1">Create</a>
+                  </div>
+                </div>
+                <div id="geofence-tree"></div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,0 +1,24 @@
+<template>
+    <div class="card">
+        <div class="collapsible-header active indigo darken-2 white-text"><i class="mdi-maps-pin-drop"></i>Points of Interest</div>
+        <div class="card-content">
+            <div id="locations"></div>
+        </div>
+    </div>
+    <div class="row">
+        <!-- File Upload start -->
+        <div class="col s12 m6 l6">
+            <div class="card">
+                <blockquote>File Upload</blockquote>
+                <div class="card-content">
+                    <div class="input-field col s12">
+                        <input class="input" type="file" files.bind="files">
+                        <button class="btn cyan waves-effect waves-light right upload-btn" click.delegate="massUpload(files)">Upload
+                </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- File Upload end -->
+    </div>
+</template>

@@ -1,0 +1,30 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: Bender
+host: localhost:8080
+basePath: /
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+ /test:
+  get:
+    description: Do a ping test to check if the server is alive
+    produces:
+    - application/json
+    responses:
+      '200':
+        description: Server Ping
+  post:
+    description: Do a ping test to check if the server is alive
+    produces:
+    - application/json
+    responses:
+      '200':
+        description: Server Ping
+  
+

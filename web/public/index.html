@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>RAZRGEN</title>
+    <meta name="viewport" content="width = device-width, initial-scale = 1.0, minimum-scale = 1, maximum-scale = 1, user-scalable = no"
+    />
+    <meta name="apple-mobile-web-app-title" content="RAZRGEN" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="blue" />
+
+    <link rel="apple-touch-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="76x76" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="120x120" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="152x152" href="favicon.ico">
+
+    <link href="css/main.css" type="text/css" rel="stylesheet" media="screen,projection">
+</head>
+<!-- Start Page Loading -->
+<div id="loader-wrapper">
+    <div id="loader"></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>
+<!-- End Page Loading -->
+
+<body aurelia-app="main">
+    <script type="text/javascript">
+        App = {};
+    </script>
+    <script type="text/javascript" src="scripts/lib.min.js"></script>
+    <!--Google Maps-->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC02bIRNy0Y8x9klbesAlmkqqUfkcgD49A"></script>
+    <script async defer src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+    <!--THE MAIN APPLICATION-->
+    <!--App Utilities-->
+    <script type="text/javascript" src="scripts/util.min.js"></script>
+    <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // iOS web app full screen hacks.\
+            if (window.navigator.standalone == true) {
+                // make all link remain in web app mode.
+                $('a').click(function () {
+                    window.location = $(this).attr('href');
+                    return false;
+                });
+            }
+        });
+
+    </script>
+</body>
+
+</html>

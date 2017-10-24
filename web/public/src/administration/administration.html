@@ -1,0 +1,108 @@
+<template>
+    <div class="tabstrip">
+        <ul>
+            <li class="k-state-active">
+                Users
+            </li>
+        </ul>
+        <div>
+            <!-- Users Administration start -->
+            <div class="card">
+                <div class="collapsible-header active indigo darken-4 white-text"><i class="mdi-social-person"></i>Users</div>
+                <div id="appUsers"></div>
+                <script type="text/x-kendo-template" id="template">
+                    <div class="row">
+                        <div class="col s0 m12 l6">
+                            <ul id="projects-collection" class="collection">
+                                <li class="collection-item avatar">
+                                    <span class="secondary-content">
+                  <div class="row">
+                      <!--<div class="col s6">
+                        <a class="btn btn-small cyan darken-1 waves-effect waves-light"  href='\\#asset-details/#:_id#'>View</a>
+                      </div>-->
+                      <div class="col s5">
+                        <a class="btn btn-small cyan darken-2 waves-effect waves-light" href='\\#user-admin/#:_id#'>Edit</a>
+                      </div>
+                    </div>
+                </span>
+                                </li>
+                                <li class="collection-item grid-details-item">
+                                    <div class="row">
+                                        <div class="col s6">
+                                            <p class="collections-content">Image</p>
+                                        </div>
+                                        <div class="col s6">
+                                            <img src="./uploads/users/#if(imageUrl){# #:imageUrl# #} else{# #:'default.png'# #}#" onError="this.src = './uploads/users/default.png'"
+                                                class="circle responsive-img valign profile-image">
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="collection-item grid-details-item">
+                                    <div class="row">
+                                        <div class="col s6">
+                                            <p class="collections-content">DOB</p>
+                                        </div>
+                                        <div class="col s6">
+                                            <p class="collections-content">#:dob#</p>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="collection-item grid-details-item">
+                                    <div class="row">
+                                        <div class="col s6">
+                                            <p class="collections-content">Email</p>
+                                        </div>
+                                        <div class="col s6">
+                                            <p class="collections-content">#:email#</p>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="collection-item grid-details-item">
+                                    <div class="row">
+                                        <div class="col s6">
+                                            <p class="collections-content">Distance Unit</p>
+                                        </div>
+                                        <div class="col s6">
+                                            <p class="collections-content">#:distance#</p>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="collection-item grid-details-item">
+                                    <div class="row">
+                                        <div class="col s6">
+                                            <p class="collections-content">Pressure Unit</p>
+                                        </div>
+                                        <div class="col s6">
+                                            <p class="collections-content">#:pressure#</p>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="collection-item grid-details-item">
+                                    <div class="row">
+                                        <div class="col s6">
+                                            <p class="collections-content">Speed Unit</p>
+                                        </div>
+                                        <div class="col s6">
+                                            <p class="collections-content">#:speed#</p>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="collection-item grid-details-item">
+                                    <div class="row">
+                                        <div class="col s6">
+                                            <p class="collections-content">Volume Unit</p>
+                                        </div>
+                                        <div class="col s6">
+                                            <p class="collections-content">#:volume#</p>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </script>
+            </div>
+            <!-- Users Administration end -->
+        </div>
+    </div>
+</template>

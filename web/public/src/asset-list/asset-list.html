@@ -1,0 +1,226 @@
+<template>
+    <!--Card stats start-->
+    <div id="card-stats">
+        <div class="row">
+            <div class="col s12 m6 l4">
+                <div class="card">
+                    <div class="card-content blue darken-4 white-text">
+                        <div class="row">
+                            <div class="col s3">
+                                <i class="mdi-maps-local-drink medium"></i>
+                            </div>
+                            <div class="col s9">
+                                <h4 class="card-stats-number">783 L</h4>
+                                <p class="card-stats-title">Total fuel used by assets today</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-action  blue darken-4">
+                        <div id="clients-bar">
+                            <p class="card-stats-compare"> <span class="green-text text-lighten-5"><i class="mdi-hardware-keyboard-arrow-up"></i> 22% from yesterday</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6 l4">
+                <div class="card">
+                    <div class="card-content  blue darken-3 white-text">
+                        <div class="row">
+                            <div class="col s3">
+                                <i class="mdi-image-flash-on medium"></i>
+                            </div>
+                            <div class="col s9">
+                                <h4 class="card-stats-number">12500 kVA</h4>
+                                <p class="card-stats-title">Total power output generated</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-action blue darken-3">
+                        <div id="clients-bar">
+                            <p class="card-stats-compare"> <span class="green-text text-lighten-5"><i class="mdi-hardware-keyboard-arrow-down"></i> 5% from yesterday</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6 l4">
+                <div class="card">
+                    <div class="card-content  blue darken-2 white-text">
+                        <div class="row">
+                            <div class="col s3">
+                                <i class="mdi-action-schedule medium"></i>
+                            </div>
+                            <div class="col s9">
+                                <h4 class="card-stats-number">180 Hrs</h4>
+                                <p class="card-stats-title">Total running hours for gensets today</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-action blue darken-2">
+                        <div id="clients-bar">
+                            <p class="card-stats-compare"> <span class="green-text text-lighten-5"><i class="mdi-hardware-keyboard-arrow-down"></i> 45% from yesterday</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s12 m5 l5">
+            <!--Engine Rating Pie start-->
+            <div show.bind='!noEngineRatingChart' class="card">
+                <!--loadmask-->
+                <div show.bind='loadingEngineRatingChart' class="k-loading-mask" style="width:100%;height:100%"><span class="k-loading-text">Loading...</span>
+                    <div class="k-loading-image">
+                        <div class="k-loading-color"></div>
+                    </div>
+                </div>
+                 <div show.bind='noEngineRatingChart' class="center">No data avaliable</div>
+                <!--loadmask-->
+                <div class="card-content">
+                    <canvas id="engineRatingChart" ref="engineRatingChart"></canvas>
+                </div>
+            </div>
+            <!--Engine Rating Pie end-->
+        </div>
+        <div class="col s12 m7 l7">
+            <!--Capacity Bar start-->
+            <div show.bind='!noCapacityChart' class="card waves-effect waves-block waves-light">
+                <!--loadmask-->
+                <div show.bind='loadingCapacityChart' class="k-loading-mask" style="width:100%;height:100%"><span class="k-loading-text">Loading...</span>
+                    <div class="k-loading-image">
+                        <div class="k-loading-color"></div>
+                    </div>
+                </div>
+                <!--loadmask-->
+                <div class="card-content">
+                    <div id="capacityChart" ref='capacityChart'></div>
+                </div>
+            </div>
+            <!--Capacity Bar start-->
+        </div>
+    </div>
+    <!--Tags search start-->
+    <div class="row">
+        <div class="input-field col s12">
+            <div id="list-tags"></div>
+        </div>
+    </div>
+    <!--Tags search end-->
+    <!--Asset List start-->
+    <div class="card">
+        <div id="assetGrid"></div>
+        <script type="text/x-kendo-template" id="template">
+            <div class="row">
+                <div class="col s0 m12 l6">
+                    <ul id="projects-collection" class="collection">
+                        <li class="collection-item avatar">
+                            <span class="secondary-content">
+                  <div class="row">
+                      <div class="col s6">
+                        <a class="btn waves-effect waves-light btn-small cyan"  href='\\#asset-details/#:_id#'>View</a>
+                      </div>
+                      <div class="col s5" style="display: #=(App.currentUser.privileges.indexOf(1) > -1)? 'hidden':'none'#">
+                        <a class="btn btn-small waves-effect waves-light cyan darken-4" href='\\#asset-admin?id=#:_id#'>Edit</a>
+                      </div>
+                    </div>
+                </span>
+                        </li>
+                        <li class="collection-item grid-details-item">
+                            <div class="row">
+                                <div class="col s6">
+                                    <p class="collections-content">Asset Name</p>
+                                </div>
+                                <div class="col s6">
+                                    <p class="collections-content">#:data.name || '-'#</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="collection-item grid-details-item">
+                            <div class="row">
+                                <div class="col s6">
+                                    <p class="collections-content">Control Panel Manufacturer</p>
+                                </div>
+                                <div class="col s6">
+                                    <p class="collections-content">#:data.controlPanelManufacturer || '-'#</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="collection-item grid-details-item">
+                            <div class="row">
+                                <div class="col s6">
+                                    <p class="collections-content">Year of Manufacture</p>
+                                </div>
+                                <div class="col s6">
+                                    <p class="collections-content">#:data.yearOfManufacture || '-'#</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="collection-item grid-details-item">
+                            <div class="row">
+                                <div class="col s6">
+                                    <p class="collections-content">Power Rating</p>
+                                </div>
+                                <div class="col s6">
+                                    <p class="collections-content">#:data.powerRating || '-'#</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="collection-item grid-details-item">
+                            <div class="row">
+                                <div class="col s6">
+                                    <p class="collections-content">Generator Engine Rating</p>
+                                </div>
+                                <div class="col s6">
+                                    <p class="collections-content">#:data.generatorEngineRating || '-'#</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="collection-item grid-details-item">
+                            <div class="row">
+                                <div class="col s6">
+                                    <p class="collections-content">Generator Frequency</p>
+                                </div>
+                                <div class="col s6">
+                                    <p class="collections-content">#: data.generatorFrequency  || '-'#</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="collection-item grid-details-item">
+                            <div class="row">
+                                <div class="col s6">
+                                    <p class="collections-content">Tags</p>
+                                </div>
+                                <div class="col s6">
+                                    <p class="collections-content">
+                                        <!--<span class="task-cat cyan">#: tags #</span> -->
+                                        #if(typeof data.tags != 'undefined') {# #for (var i=0,len=data.tags.length; i
+                                        <len;i++){ # <span class="task-cat cyan">#: data.tags[i] #</span>
+                                            # } # # } #
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="collection-item grid-details-item">
+                            <div class="row">
+                                <div class="col s6">
+                                    <p class="collections-content">Projects</p>
+                                </div>
+                                <div class="col s6">
+                                    <p class="collections-content">
+                                        <!--<span class="task-cat cyan">#: _projects #</span> -->
+                                        #if(typeof data._projects != 'undefined') {# #for (var i=0,len=data._projects.length; i
+                                        <len;i++){ # <span class="task-cat cyan">#: data._projects[i].name #</span>
+                                            # } # # } #
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </script>
+    </div>
+    <!--Asset List end-->
+    <!-- stats end-->
+
+</template>

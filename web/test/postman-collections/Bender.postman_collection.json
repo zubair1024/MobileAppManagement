@@ -1,0 +1,365 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Bender",
+		"_postman_id": "c429229e-f174-673a-ef15-11c5a483615b",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "https://localhost:8080/test",
+			"request": {
+				"url": "https://localhost:8080/test/",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "Ping test"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/test/liquor",
+			"request": {
+				"url": "https://localhost:8080/test/liquor",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "firstName",
+							"value": "Bud",
+							"type": "text",
+							"enabled": false
+						},
+						{
+							"key": "lastName",
+							"value": "Buzz",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": "Liquor Test"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/test/404",
+			"request": {
+				"url": "https://localhost:8080/test/404",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "404 test"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/test/500",
+			"request": {
+				"url": "https://localhost:8080/test/500",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "500 test"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/test/401",
+			"request": {
+				"url": "https://localhost:8080/test/401",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "401 test"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/user",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"username": "foo",
+						"password": "bar",
+						"saveHelperData": true,
+						"showPassword": false
+					}
+				},
+				"url": "https://localhost:8080/user",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Zm9vOmJhcg==",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Default request for all users"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/user",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"username": "foo",
+						"password": "bar",
+						"saveHelperData": true,
+						"showPassword": false
+					}
+				},
+				"url": "https://localhost:8080/user",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Zm9vOmJhcg==",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "loginName",
+							"value": "testUser",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "password",
+							"value": "testPassword",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "name",
+							"value": "Test User",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "email",
+							"value": "test@user.com",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": "Create a new user"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/user/zubair",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"username": "foo",
+						"password": "bar",
+						"saveHelperData": true,
+						"showPassword": false
+					}
+				},
+				"url": "https://localhost:8080/user/zubair",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Zm9vOmJhcg==",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Request for a specific user"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/user/zubair",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"username": "foo",
+						"password": "bar",
+						"saveHelperData": true,
+						"showPassword": false
+					}
+				},
+				"url": "https://localhost:8080/user/zubair",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Zm9vOmJhcg==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "z@m.com",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": "Update a user"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/user/zubair",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"username": "foo",
+						"password": "bar",
+						"saveHelperData": true,
+						"showPassword": false
+					}
+				},
+				"url": "https://localhost:8080/user/zubair",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Zm9vOmJhcg==",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Delete a user"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/sensormessageevent",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"username": "foo",
+						"password": "bar",
+						"saveHelperData": true,
+						"showPassword": false
+					}
+				},
+				"url": "https://localhost:8080/sensormessageevent",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Zm9vOmJhcg==",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Getting Sensor Message Event"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/sensormessageevent?page=1&limit=20&values=eventType,configType,imei,createdTime",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"username": "foo",
+						"password": "bar",
+						"saveHelperData": true,
+						"showPassword": false
+					}
+				},
+				"url": "https://localhost:8080/sensormessageevent?page=1&limit=20&values=eventType,configType,imei,createdTime",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Zm9vOmJhcg==",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Getting Sensor Message Event through the use of pagination, filters, selectors and sorters"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/sensormessageevent/eventType/$CANP",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"username": "foo",
+						"password": "bar",
+						"saveHelperData": true,
+						"showPassword": false
+					}
+				},
+				"url": "https://localhost:8080/sensormessageevent/eventType/$CANP",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Zm9vOmJhcg==",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Getting Sensor Message Event by event type"
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8080/sensormessageevent/585da59cc2ad0310bc4da8df",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"username": "foo",
+						"password": "bar",
+						"saveHelperData": true,
+						"showPassword": false
+					}
+				},
+				"url": "https://localhost:8080/sensormessageevent/585da59cc2ad0310bc4da8df",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic Zm9vOmJhcg==",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Deleting Sensor Message Event by event ID"
+			},
+			"response": []
+		}
+	]
+}

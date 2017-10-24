@@ -1,0 +1,95 @@
+<template>
+  <div class="row">
+    <div class="col s12 m8 l8">
+      <div class="card-panel">
+        <h4 class="header2">User Profile</h4>
+        <div class="row">
+          <form class="col s12">
+            <div class="row">
+              <div class="input-field col s12">Name
+                <input id="name" type="text" value.bind="model.name" name="name" required>
+              </div>
+              <div class="input-field col s12">Email
+                <input id="email5" type="email" value.bind="model.email" name="email" required>
+              </div>
+              <div class="input-field col s12">Login Name
+                <input id="email5" type="text" value.bind="model.loginName" name="loginName" required>
+              </div>
+              <div class="input-field col s12">Password
+                <input id="password6" type="password" value.bind="model.password" name="password" required>
+              </div>
+              <div class="input-field col s12">DOB
+                <input type="date" class="datepicker" value.bind="model.dob" name="dob" required>
+              </div>
+              <!--<ul>
+                <li repeat.for="p of selectedRoles">${p}</li>
+              </ul>-->
+              <h4 class="header2">Measurement Unit</h4>
+              <div class="input-field col s12">Timezone
+                <input id="timezone" style="width: 100%;" />
+              </div>
+              <div class="input-field col s12">Distance
+                <input id="distance" style="width: 100%;" />
+              </div>
+              <div class="input-field col s12">Speed
+                <input id="speed" style="width: 100%;" />
+              </div>
+              <div class="input-field col s12">Volume
+                <input id="volume" style="width: 100%;" />
+              </div>
+              <div class="input-field col s12">Pressure
+                <input id="pressure" style="width: 100%;" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col s12 m4 l4" show.bind="update">
+      <div class="card">
+        <div class="card-content">
+          <h4 class="header2">Avatar</h4>
+          <!--displaying user image-->
+          <div class="input-field col s12">
+            <img class="materialboxed" width="100" height="100" src="./uploads/users/${model.imageUrl}">
+          </div>
+          <!--file upload input-->
+          <div class="input-field col s12">
+            <input class="input" type="file" files.bind="images">
+            <button class="btn cyan waves-effect waves-light right upload-btn" click.delegate="uploadAvatar(images)">Upload
+                </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col s12 m4 l4">
+      <div class="card">
+        <div class="card-content">
+          <h4 class="header2">User Privileges</h4>
+          <div class="input-field col s12">
+            <ul repeat.for="role of possiblePrivileges">
+              <p>
+                <input type="checkbox" id='${role.id}' model.bind="role.id" checked.bind="model.privileges" />
+                <label for="${role.id}">${role.name}</label>
+              </p>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s12">
+        <div class="admin-btns">
+          <div show.bind="!update">
+            <button class="btn cyan waves-effect waves-light right" name="action" click.delegate="submit()">Create</button>
+          </div>
+          <div show.bind="update">
+            <button class="btn blue waves-effect waves-light right" name="action" click.delegate="submit()">Update</button>
+            <button class="btn red waves-effect waves-light" click.delegate="delete()">Delete</button>
+          </div>
+        </div>
+        <!--<button class="btn cyan waves-effect waves-light right" disabled.bind="loading" click.delegate="submit()">Submit
+                </button>-->
+      </div>
+    </div>
+</template>

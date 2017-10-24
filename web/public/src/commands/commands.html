@@ -1,0 +1,30 @@
+<template>
+    <div class="row">
+        <div class="col s12 m12 l12">
+            <div class="card">
+                <blockquote>Raw Command Box</blockquote>
+                <div class="card-content">
+                    <div class="row">
+                        <div class="col s12">
+                            <h6>Choose assets:</h6>
+                            <select id="command-multiselect"></select>
+                        </div>
+                        <div class="col s12">
+                            <h6>Write Command below:</h6>
+                            <textarea value.bind="rawCommand" rows="30" class="k-textbox" style="width:100%">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m7 l7">
+                        <div class="admin-btns">
+                            <div show.bind="!update">
+                                <button class="btn cyan waves-effect waves-light right" click.delegate="sendCommand()" disabled.bind="btnDisable">${btnText}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

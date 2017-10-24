@@ -1,0 +1,19 @@
+body{
+    background-color: #fff;
+}
+
+footer{
+  z-index: 3;
+    position:fixed;
+    padding-top:50px;
+    background-color:red;
+    bottom:0px;
+    left:0px;
+    right:0px;
+    margin-bottom:0px;
+}
+
+footer.page-footer .footer-copyright {
+    height: 35px;
+    line-height: 35px;
+}

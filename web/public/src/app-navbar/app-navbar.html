@@ -1,0 +1,100 @@
+<template>
+    <aside id="left-sidebar-nav">
+        <ul id="slide-out" class="side-nav fixed leftside-navigation">
+            <li class="user-details cyan darken-2">
+                <div class="row">
+                    <div class="col col s4 m4 l4">
+                        <img src="./uploads/users/${user.imageUrl}" class="circle responsive-img valign profile-image">
+                    </div>
+                    <div class="col col s8 m8 l8">
+                        <ul id="profile-dropdown" class="dropdown-content">
+                            <li><a a route-href="route: profile"><i class="mdi-action-face-unlock"></i> Profile</a>
+                            </li>
+                            <!-- check for user admin access (0) -->
+                            <li show.bind="(user.privileges.indexOf(0) > -1)"><a route-href="route: administration"><i class="mdi-action-settings"></i>Admin</a>
+                            </li>
+                            <li><a href="#"><i class="mdi-communication-live-help"></i> Help</a>
+                            </li>
+                            <li class="divider"></li>
+                            <li><a click.delegate="logout()"><i class="mdi-hardware-keyboard-tab"></i> Logout</a> </li>
+                        </ul>
+                        <a class="btn-flat dropdown-button waves-effect waves-light white-text profile-btn" href="#" data-activates="profile-dropdown">${user.name}<i class="mdi-navigation-arrow-drop-down right"></i></a>
+                        <p class="user-roal">Administrator</p>
+                    </div>
+                </div>
+            </li>
+            <li class="bold">
+                <a class="waves-effect waves-cyan" route-href="route: overview"><i class="mdi-action-dashboard"></i> Dashboard</a>
+            </li>
+            <li class="no-padding">
+                <ul class="collapsible collapsible-accordion">
+                    <li class="bold"><a class="collapsible-header waves-effect waves-cyan"><i class="mdi-toggle-radio-button-on"></i>Gensets</a>
+                        <div class="collapsible-body">
+                            <ul>
+                                <li><a route-href="route: project-list"><i class="mdi-communication-business"></i>All Projects</a>
+                                </li>
+                                <li><a route-href="route: asset-list"><i class="mdi-image-flash-on"></i>All Gensets</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+            <li class="bold"><a class="waves-effect waves-cyan" route-href="route: alarms"><i class="mdi-social-notifications-on"></i> Alerts <span show.bind="alarmsCount > 0" class="new badge red darken-4">${alarmsCount}</span></a>
+            </li>
+            <li class="bold">
+                <a class="waves-effect waves-cyan" route-href="route: map"><i class="mdi-social-public"></i>Map</a>
+            </li>
+            <li class="bold">
+                <a class="waves-effect waves-cyan" route-href="route: locations"><i class="mdi-maps-pin-drop"></i>POI</a>
+            </li>
+            <li class="bold">
+                <a class="waves-effect waves-cyan" route-href="route: geofences"><i class="mdi-maps-layers"></i>Geofences</a>
+            </li>
+            <li class="bold">
+                <a class="waves-effect waves-cyan" route-href="route: commands"><i class="mdi-notification-sms"></i>Commands</a>
+            </li>
+            <li class="li-hover">
+                <div class="divider"></div>
+            </li>
+            <li class="li-hover">
+                <p class="ultra-small margin more-text">Analytics</p>
+            </li>
+            <li><a route-href="route: report-asset-utilization"><i class="mdi-action-trending-up"></i>Genset Utilization</a>
+            </li>
+            <li class="li-hover">
+                <div class="divider"></div>
+            </li>
+            <li class="li-hover">
+                <p class="ultra-small margin more-text">MORE</p>
+            </li>
+            <li><a><i class="mdi-communication-live-help"></i> Help</a>
+            </li>
+            <li class="li-hover">
+                <div class="divider"></div>
+            </li>
+            </li>
+        </ul>
+        <a href="#" data-activates="slide-out" class="sidebar-collapse btn-floating btn-medium waves-effect waves-light hide-on-large-only darken-2"><i class="mdi-navigation-menu"></i></a>
+    </aside>
+    <!-- Universal Float Button start-->
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large red">
+      <i class="large mdi-navigation-apps"></i>
+  </a>
+        <ul>
+            <li><a class="btn-floating yellow darken-1 tooltipped" style="transform: scaleY(0.4) scaleX(0.4) translateY(40px); opacity: 0;"
+                    data-position="left" data-delay="250" data-tooltip="Support" click.delegate="showSupportDialog()"><i class="large mdi-communication-quick-contacts-dialer"></i></a>
+            </li>
+            <li show.bind="(user.privileges.indexOf(1) > -1)"><a class="btn-floating green tooltipped" style="transform: scaleY(0.4) scaleX(0.4) translateY(40px); opacity: 0;"
+                    data-position="left" data-delay="250" data-tooltip="Create Asset" route-href="route: asset-admin"><i class="large mdi-image-flash-on"></i></a>
+            </li>
+            <li show.bind="(user.privileges.indexOf(2) > -1)"><a class="btn-floating green tooltipped" style="transform: scaleY(0.4) scaleX(0.4) translateY(40px); opacity: 0;"
+                    data-position="left" data-delay="250" data-tooltip="Create Project" route-href="route: project-admin"><i class="large mdi-communication-business"></i></a>
+            </li>
+        </ul>
+    </div>
+    <div id="supportDialog" ref='supportDialog'>
+    </div>
+    <!-- Universal Float Button end-->
+</template>

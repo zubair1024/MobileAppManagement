@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>RAZRGEN</title>
+    <meta name="viewport" content="width = device-width, initial-scale = 1.0, minimum-scale = 1, maximum-scale = 1, user-scalable = no"
+    />
+    <meta name="apple-mobile-web-app-title" content="RAZRGEN" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="blue" />
+
+    <link rel="apple-touch-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="76x76" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="120x120" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="152x152" href="favicon.ico">
+
+
+
+    <!-- CORE CSS-->
+    <link href="js/taggle.js-1.11.1/example/css/taggle.css" type="text/css" rel="stylesheet" media="screen,projection">
+    <link href="css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection">
+    <link href="js/kendoui-professional/styles/kendo.common.min.css" type="text/css" rel="stylesheet" media="screen,projection">
+    <link href="js/kendoui-professional/styles/kendo.material.min.css" type="text/css" rel="stylesheet" media="screen,projection">
+    <link href="js/kendoui-professional/styles/kendo.material.mobile.min.css" type="text/css" rel="stylesheet" media="screen,projection">
+    <!-- PLUGIN CSS -->
+    <link href="js/plugins/perfect-scrollbar/perfect-scrollbar.css" type="text/css" rel="stylesheet" media="screen,projection">
+    <!--APPLICATION STYLES-->
+    <link href="css/ionicons.css" type="text/css" rel="stylesheet" media="screen,projection">
+    <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection">
+</head>
+<!-- Start Page Loading -->
+<div id="loader-wrapper">
+    <div id="loader">
+        <img src="images/logo.gif" alt="" class="responsive-img">
+    </div>
+</div>
+<!-- End Page Loading -->
+
+<body aurelia-app="main">
+    <script type="text/javascript">
+        App = {};
+    </script>
+</body>
+
+
+<!-- jQuery Library -->
+<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+<!--JSZip for Exporting-->
+<script async defer type="text/javascript" src="js/jszip.js"></script>
+<!-- Moment.js Library -->
+<script type="text/javascript" src="js/moment.js"></script>
+<script type="text/javascript" src="js/moment.timezone.js"></script>
+<!--Taggle Library-->
+<script type="text/javascript" src="js/taggle.js-1.11.1/src/taggle.js"></script>
+<!--particles-->
+<script async defer type="text/javascript" src="js/particles.min.js"></script>
+<!--materialize js-->
+<script type="text/javascript" src="js/materialize.js"></script>
+<!--scrollbar-->
+<script type="text/javascript" src="js/plugins/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="js/kendoui-professional/js/kendo.all.min.js"></script>
+<!--Google Maps-->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC02bIRNy0Y8x9klbesAlmkqqUfkcgD49A&libraries=drawing"></script>
+<script async defer src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+<!--App Utilities-->
+<script type="text/javascript" src="js/config.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<!--THE MAIN APPLICATION-->
+<script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // iOS web app full screen hacks.
+        if (window.navigator.standalone == true) {
+            // make all link remain in web app mode.
+            $('a').click(function () {
+                window.location = $(this).attr('href');
+                return false;
+            });
+        }
+    });
+
+</script>
+
+
+</html>
