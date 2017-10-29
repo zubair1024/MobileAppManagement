@@ -139,6 +139,19 @@ export class Application {
         name: 'report-asset-utilization',
         moduleId: 'report-asset-utilization/report-asset-utilization',
         title: 'Asset Utilization'
+      },
+      //new pages for 247
+      {
+        route: 'ad-list',
+        name: 'ad-list',
+        moduleId: 'ad-list/ad-list',
+        title: 'Ads List'
+      },
+      {
+        route: 'ad-admin',
+        name: 'ad-admin',
+        moduleId: 'ad-admin/ad-admin',
+        title: 'Ad Admin'
       }
     ]);
     this.router = router;

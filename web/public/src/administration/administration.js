@@ -5,6 +5,18 @@ import { Http } from '../http';
 export class Administration {
   constructor(http) {
     this.http = http;
+
+    // teamfnol@247homerescue.co.uk
+    // auth.smtp.1and1.co.uk
+    // port 25
+    // password: hassan123
+    // host: 'smtp.gmail.com',
+    // port: 465,
+    // secure: true, // secure:true for port 465, secure:false for port 587
+    // auth: {
+    // user: 'thepropertybuyingcompanyae@gmail.com',
+    // pass: 'onlyvimal1'
+    // }
   }
 
   attached() {

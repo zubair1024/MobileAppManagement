@@ -1,0 +1,381 @@
+<template>
+  <div show.bind="loading" class="loader">
+    <!--Loader start-->
+    <div class="row">
+      <div class="col s12 m12 l12">
+        <div class="progress">
+          <div class="indeterminate"></div>
+        </div>
+      </div>
+    </div>
+    <!--Loader end-->
+  </div>
+  <div show.bind="!loading">
+    <!--Asset Attributes start-->
+    <div class="row">
+      <div class="col s12 m7 l7">
+        <div class="card-panel">
+          <h4 class="header2">Asset Attributes</h4>
+          <div class="row">
+            <form class="col s12">
+              <div class="row">
+                <div class="input-field col s12">Asset Name
+                  <input id="asset_name" type="text" value.bind="model.name" name="name" required>
+                </div>
+                <div class="input-field col s12">Sensor
+                  <input id="sensor_name" type="text" value.bind="model.sensor" name="sensor" required>
+                </div>
+                <div class="input-field col s12">Interface Type
+                  <input id="interfaceType" ref="interfaceType" value="1" style="width: 100%;" />
+                </div>
+                <div class="input-field col s12">Status
+                  <input id="status" ref="status" value="1" style="width: 100%;" />
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">Model
+                  <input id="modelName_name" type="text" value.bind="model.model" name="model" required>
+                </div>
+                <div class="input-field col s12">Manufacturer
+                  <input id="Manufacturer_input" type="text" value.bind="model.manufacturer" name="manufacturer" required>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">Control-Panel Manufacturer
+                  <input id="controlPanelManufacturer_input" type="text" value.bind="model.controlPanelManufacturer" name="controlPanelManufacturer"
+                    required>
+                </div>
+                <div class="input-field col s12">Year of Manufacture
+                  <input id="last_name" type="number" value.bind="model.yearOfManufacture" name="yearOfManufacture" required>
+                </div>
+              </div>
+              <h4 class="header2">Operational Attributes</h4>
+              <div class="row">
+                <div class="input-field col s12">Power Rating
+                  <input id="powerRating_input" type="number" value.bind="model.powerRating" name="powerRating" required>
+                </div>
+                <div class="input-field col s12">Generator Capacity
+                  <input id="generatorCapacity_input" type="number" value.bind="model.generatorCapacity" name="generatorCapacity" required>
+                </div>
+                <div class="input-field col s12">Generator Engine Rating
+                  <input id="generatorEngineRating" ref="generatorEngineRating" value="1" style="width: 100%;" />
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">Generator Frequency<br>
+                  <input id="generatorFrequency" ref="generatorFrequency" value="1" style="width: 100%;" />
+                </div>
+                <div class="input-field col s6">Power Factor
+                  <input id="powerFactor_input" type="number" value.bind="model.powerFactor" name="powerFactor" required>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">
+                  <div id="admin-tags"></div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col s12 m5 l5">
+        <!--Alarm and Features settings start-->
+        <div class="card">
+          <div class="card-content">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">Map Position Status</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="black-text">Disable<input type="checkbox"  checked.bind="model.features.hasMapPosition.enabled" disabled> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Engine Status start -->
+        <div class="card">
+          <div class="card-content">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">Engine Status</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="black-text">Disable<input type="checkbox"  checked.bind="model.features.engineStatus.enabled" disabled> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Engine Status end -->
+        <!-- System Odometer start -->
+        <div class="card">
+          <div class="card-content">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">System Odometer</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="black-text">Disable<input type="checkbox"  checked.bind="model.features.systemOdometer.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action">
+            <div class="row">
+              <div class="input-field col s12">
+                Offset (hrs)
+                <input id="systemOdometerOffset" type="number" value.bind="model.features.systemOdometer.offset" name="systemOdometerOffset">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- System Odometer end -->
+        <!-- Non Report start -->
+        <div class="card">
+          <div class="card-content red darken-4 white-text">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">Non Report</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="white-text">Disable<input type="checkbox"  checked.bind="model.features.nonReport.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action  blue-grey  darken-4 white-text">
+            <div class="row">
+              <div class="input-field col s12">
+                Threshold (min)
+                <input id="nonReportThreshold" type="number" value.bind="model.features.nonReport.threshold" name="nonReportThreshold" min="10">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Non Report end -->
+        <!-- Major Service start -->
+        <div class="card">
+          <div class="card-content red darken-4 white-text">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">Major Service</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="white-text">Disable<input type="checkbox"  checked.bind="model.features.majorService.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action  blue-grey  darken-4 white-text">
+            <div class="row">
+              <div class="input-field col s12">
+                Threshold (hrs)
+                <input id="nonReportThreshold" type="number" value.bind="model.features.majorService.threshold" name="nonReportThreshold"
+                  min="10">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Major Service end -->
+        <!-- Minor Service start -->
+        <div class="card">
+          <div class="card-content red darken-4 white-text">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">Minor Service</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="white-text">Disable<input type="checkbox"  checked.bind="model.features.minorService.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action  blue-grey  darken-4 white-text">
+            <div class="row">
+              <div class="input-field col s12">
+                Threshold (hrs)
+                <input id="nonReportThreshold" type="number" value.bind="model.features.minorService.threshold" name="nonReportThreshold"
+                  min="10">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Minor Service end -->
+        <!-- High Supply Voltage start -->
+        <div class="card">
+          <div class="card-content red darken-4 white-text">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">High Supply Voltage</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="white-text">Disable<input type="checkbox"  checked.bind="model.features.highSupplyVoltage.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action  blue-grey  darken-4 white-text">
+            <div class="row">
+              <div class="input-field col s12">
+                High Threshold
+                <input id="highSupplyVoltageThreshold" type="number" value.bind="model.features.highSupplyVoltage.threshold" name="highSupplyVoltageThreshold"
+                  min="10">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- High Supply Voltage end -->
+        <!-- Low Supply Voltage start -->
+        <div class="card">
+          <div class="card-content red darken-4 white-text">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">Low Supply Voltage</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="white-text">Disable<input type="checkbox"  checked.bind="model.features.lowSupplyVoltage.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action  blue-grey  darken-4 white-text">
+            <div class="row">
+              <div class="input-field col s12">
+                Low Threshold
+                <input id="lowSupplyVoltageThreshold" type="number" value.bind="model.features.lowSupplyVoltage.threshold" name="lowSupplyVoltageThreshold"
+                  min="10">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Low Supply Voltage end -->
+        <!-- High Power Output start -->
+        <div class="card">
+          <div class="card-content red darken-4 white-text">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">High Power Output</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="white-text">Disable<input type="checkbox"  checked.bind="model.features.highPowerOutput.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action  blue-grey  darken-4 white-text">
+            <div class="row">
+              <div class="input-field col s12">
+                High Threshold
+                <input id="highPowerOutputThreshold" type="number" value.bind="model.features.highPowerOutput.threshold" name="highPowerOutputThreshold"
+                  min="10">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- High Power Output end -->
+        <!-- Low Power Output start -->
+        <div class="card">
+          <div class="card-content red darken-4 white-text">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">Low Power Output</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="white-text">Disable<input type="checkbox"  checked.bind="model.features.lowPowerOutput.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action  blue-grey  darken-4 white-text">
+            <div class="row">
+              <div class="input-field col s12">
+                Low Threshold
+                <input id="lowPowerOutputThreshold" type="number" value.bind="model.features.lowPowerOutput.threshold" name="lowPowerOutputThreshold"
+                  min="10">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Low Power Output end -->
+        <!-- High Engine Coolant Temperature start -->
+        <div class="card">
+          <div class="card-content red darken-4 white-text">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">High Coolant Temperature</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="white-text">Disable<input type="checkbox"  checked.bind="model.features.highCoolantTemperature.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action  blue-grey  darken-4 white-text">
+            <div class="row">
+              <div class="input-field col s12">
+                Low Threshold
+                <input id="highCoolantTemperatureThreshold" type="number" value.bind="model.features.highCoolantTemperature.threshold" name="highCoolantTemperatureThreshold"
+                  min="10">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--High Engine Coolant Temperature end -->
+        <!-- Frequency Alarm start -->
+        <div class="card">
+          <div class="card-content red darken-4 white-text">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">Frequency</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="white-text">Disable<input type="checkbox"  checked.bind="model.features.frequency.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action  blue-grey  darken-4 white-text">
+            <div class="row">
+              <div class="input-field col s12">
+                High Threshold
+                <input id="frequencyThreshold" type="number" value.bind="model.features.frequency.highThreshold" name="frequencyThreshold" min="10">
+              </div>
+              <div class="input-field col s12">
+                Low Threshold
+                <input id="frequencyThreshold" type="number" value.bind="model.features.frequency.lowThreshold" name="frequencyThreshold" min="10">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Frequency Alarm end -->
+        <!-- Oil Pressure Alarm start -->
+        <div class="card">
+          <div class="card-content red darken-4 white-text">
+            <div class="row">
+              <div class="col s3">
+                <p class="card-stats-number">Oil Pressure</p>
+              </div>
+              <div class="col s9">
+                <div class="switch card-switch"><label class="white-text">Disable<input type="checkbox"  checked.bind="model.features.oilPressure.enabled"> <span class="lever"></span> Enable</label></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-action  blue-grey  darken-4 white-text">
+            <div class="row">
+              <div class="input-field col s12">
+                Threshold
+                <input id="oilPressureThreshold" type="number" value.bind="model.features.lowOilPressure.threshold" name="oilPressureThreshold"
+                  min="10">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Frequency Alarm end -->
+      </div>
+    </div>
+    <!--Alarm and Features settings end-->
+    <div class="row">
+      <div class="input-field col s12 m7 l7">
+        <div class="admin-btns">
+          <div show.bind="!update">
+            <button class="btn cyan waves-effect waves-light right" name="action" click.delegate="submit()">Create</button>
+          </div>
+          <div show.bind="update">
+            <button class="btn blue waves-effect waves-light right" name="action" click.delegate="submit()">Update</button>
+            <button class="btn red waves-effect waves-light" click.delegate="delete()">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</template>

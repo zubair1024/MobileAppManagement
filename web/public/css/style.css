@@ -1400,6 +1400,10 @@ tr.group:hover {
     border-color: #1565C0;
 }
 
+.k-header{
+    background-color: transparent;
+}
+
 /*----------------------------------------
     Grid Styling
 ------------------------------------------*/

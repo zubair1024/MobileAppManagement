@@ -4,11 +4,16 @@
             <li class="k-state-active">
                 Users
             </li>
+            <li>
+                SMTP
+            </li>
         </ul>
+        <!-- Tab 1 -->
         <div>
             <!-- Users Administration start -->
             <div class="card">
-                <div class="collapsible-header active indigo darken-4 white-text"><i class="mdi-social-person"></i>Users</div>
+                <div class="collapsible-header active indigo darken-4 white-text"></div>
+                    <i class="mdi-social-person"></i>Users</div>
                 <div id="appUsers"></div>
                 <script type="text/x-kendo-template" id="template">
                     <div class="row">
@@ -104,5 +109,37 @@
             </div>
             <!-- Users Administration end -->
         </div>
-    </div>
+        <!-- Tab 1 end  -->
+        <!-- Tab 2  -->
+        <div>
+            <div class="card-panel">
+                <h4 class="header2">SMTP Settings</h4>
+                <div class="row">
+                    <form class="col s12">
+                        <div class="row">
+                            <div class="input-field col s12">Username
+                                <input id="asset_name" type="text" value.bind="smtp.user" name="user" required>
+                            </div>
+                            <div class="input-field col s12">Password
+                                <input id="smtp_name" type="password" value.bind="smtp.pass" name="pass" required>
+                            </div>
+                            <div class="input-field col s12 m6">Port
+                                <input id="smtp_name" type="text" value.bind="smtp.port" name="port" required>
+                            </div>
+                            <div class="input-field col s12 m6">Host
+                                <input id="smtp_name" type="text" value.bind="smtp.host" name="host" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m7 l7">
+                        <div class="admin-btns">
+                            <button class="btn cyan waves-effect waves-light right" name="action" click.delegate="submit()">Update</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Tab 2 end -->
 </template>

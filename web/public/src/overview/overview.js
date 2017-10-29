@@ -47,19 +47,19 @@ export class Overview {
   attached() {
     let me = this;
 
-    this.renderPowerOutputBar();
-    this.renderliveOperationalStatisticsPie();
-    this.renderMiniAlarms();
-    this.initMap(() => {
-      //stupid hacky workaround :(
-      setTimeout(function() {
-        google.maps.event.trigger(me.googleMap, 'resize');
-      }, 500);
-      this.renderAssetMarkers(() => {
-        //do something more
-        this.loadingMap = false;
-      });
-    });
+    // this.renderPowerOutputBar();
+    // this.renderliveOperationalStatisticsPie();
+    // this.renderMiniAlarms();
+    // this.initMap(() => {
+    //   //stupid hacky workaround :(
+    //   setTimeout(function() {
+    //     google.maps.event.trigger(me.googleMap, 'resize');
+    //   }, 500);
+    //   this.renderAssetMarkers(() => {
+    //     //do something more
+    //     this.loadingMap = false;
+    //   });
+    // });
   }
 
   /**

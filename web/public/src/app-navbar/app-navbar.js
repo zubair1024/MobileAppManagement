@@ -14,13 +14,13 @@ export class AppNavbar {
     this.http = http;
 
     //once
-    me.getAlarmsCount();
-    //setup a poller
-    this.alarmCountPoller = setInterval(() => {
-      if (App.currentUser) {
-        //  me.getAlarmsCount();
-      }
-    }, 10 * 1000);
+    // me.getAlarmsCount();
+    // //setup a poller
+    // this.alarmCountPoller = setInterval(() => {
+    //   if (App.currentUser) {
+    //     //  me.getAlarmsCount();
+    //   }
+    // }, 10 * 1000);
   }
 
   /**

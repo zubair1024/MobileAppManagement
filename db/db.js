@@ -106,14 +106,15 @@ module.exports = {
     this.Geofence = require("./models/Geofence");
     this.Alarm = require("./models/Alarm");
     this.AlarmEvent = require("./models/AlarmEvent");
+    this.Ad = require("./models/Ad");
 
     //master ETL jobs
-    this.ETLCustomer = require("./models/etl/_ETLCustomer");
-    this.ETLProject = require("./models/etl/_ETLProject");
+    // this.ETLCustomer = require("./models/etl/_ETLCustomer");
+    // this.ETLProject = require("./models/etl/_ETLProject");
     //ETL Jobs
-    this.LiveOperationalStatistic = require("./models/etl/LiveOperationalStatistic");
-    this.ETLAssetUtilization = require("./models/etl/ETLAssetUtilization");
-    this.ETLProjectUtilization = require("./models/etl/ETLProjectUtilization");
+    // this.LiveOperationalStatistic = require("./models/etl/LiveOperationalStatistic");
+    // this.ETLAssetUtilization = require("./models/etl/ETLAssetUtilization");
+    // this.ETLProjectUtilization = require("./models/etl/ETLProjectUtilization");
   },
 
   //logger
