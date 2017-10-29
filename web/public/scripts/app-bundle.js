@@ -586,6 +586,197 @@ define('main',['exports', './environment'], function (exports, _environment) {
     }
   }
 });
+define('ad-admin/ad-admin',['exports', 'aurelia-framework', '../http', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _http, _aureliaFetchClient) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.AdAdmin = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var AdAdmin = exports.AdAdmin = (_dec = (0, _aureliaFramework.inject)(_http.Http, _aureliaFetchClient.HttpClient), _dec(_class = function () {
+    function AdAdmin(http, httpClient) {
+      _classCallCheck(this, AdAdmin);
+
+      this.loading = true;
+      this.model = {
+        features: App.config.features
+      };
+      this.update = false;
+
+      this.client = http.client;
+      this.fetchAPI = httpClient;
+    }
+
+    AdAdmin.prototype.activate = function activate(params) {
+      var _this = this;
+
+      if (params.id) {
+        this.update = true;
+        this.client.get('/asset/id/' + params.id).then(function (res) {
+          _this.loading = false;
+          if (res && res.data) {
+            _this.model = $.extend(true, _this.model, res.data[0]);
+
+            _this.tagger.add(_this.model.tags);
+
+            if (_this.model.generatorFrequency) {
+              $(_this.generatorFrequency).data('kendoDropDownList').value(_this.model.generatorFrequency);
+            }
+            if (_this.model.generatorEngineRating) {
+              $(_this.generatorEngineRating).data('kendoDropDownList').value(_this.model.generatorEngineRating);
+            }
+            if (_this.model.status) {
+              $(_this.status).data('kendoDropDownList').value(_this.model.status);
+            }
+            if (_this.model.interfaceType) {
+              $(_this.interfaceType).data('kendoDropDownList').value(_this.model.interfaceType);
+            }
+          }
+        });
+      } else {
+        this.loading = false;
+      }
+    };
+
+    AdAdmin.prototype.attached = function attached() {
+      var me = this;
+
+      this.tagger = new Taggle('admin-tags', {
+        allowDuplicates: false
+      });
+
+      $(this.generatorFrequency).kendoDropDownList({
+        dataSource: App.config.generatorFrequency,
+
+        change: function change() {
+          me.model.generatorFrequency = this.value();
+        }
+      });
+
+      $(this.generatorEngineRating).kendoDropDownList({
+        dataSource: App.config.generatorEngineRating,
+
+        change: function change() {
+          me.model.generatorEngineRating = this.value();
+        }
+      });
+
+      $(this.status).kendoDropDownList({
+        dataSource: App.config.generatorStatus,
+
+        change: function change() {
+          me.model.status = this.value();
+        }
+      });
+
+      $(this.interfaceType).kendoDropDownList({
+        dataSource: App.config.interfaceType,
+
+        change: function change() {
+          me.model.interfaceType = this.value();
+        }
+      });
+    };
+
+    AdAdmin.prototype.uploadAssetImage = function uploadAssetImage(images) {
+      console.log('uploadAssetImage');
+      if (images && images[0]) {
+        var image = images[0];
+        var filename = void 0;
+
+        switch (image.type) {
+          case 'image/png':
+            filename = this.model._id + '.png';
+            break;
+
+          case 'image/jpeg':
+            filename = this.model._id + '.jpg';
+            break;
+
+          default:
+            Materialize.toast('Please upload a .jpg or .png file', 3000);
+            break;
+        }
+        if (filename && this.model._id) {
+          var me = this;
+
+          var formData = new FormData();
+          formData.append('images', image, filename);
+          formData.append('_id', this.model._id);
+
+          this.fetchAPI.fetch(App.config.apiUrl + '/asset/photo', {
+            method: 'POST',
+            body: formData
+          }).then(function (response) {
+            return response.json();
+          }).then(function (data) {
+            if (data) {
+              Materialize.toast('Asset image uploaded successfully.', 3000);
+            }
+          }).catch(function (error) {
+            return Materialize.toast(error.message, 5000);
+          });
+        }
+      } else {
+        Materialize.toast('Please upload an image.', 2000);
+      }
+    };
+
+    AdAdmin.prototype.submit = function submit() {
+      var _this2 = this;
+
+      this.loading = true;
+
+      if (this.tagger) {
+        this.model.tags = this.tagger.getTags().values;
+      }
+
+      if (this.update) {
+        this.client.put('/asset/id/' + this.model._id, this.model).then(function (data) {
+          _this2.loading = false;
+          if (data && data.message) {
+            Materialize.toast(data.message, 5000);
+
+            window.location.hash = '#/asset-list';
+          }
+        });
+      } else {
+        this.client.post('/asset/', this.model).then(function (data) {
+          _this2.loading = false;
+          if (data && data.message) {
+            Materialize.toast(data.message, 5000);
+
+            window.location.hash = '#/asset-list';
+          }
+        });
+      }
+    };
+
+    AdAdmin.prototype.delete = function _delete() {
+      var _this3 = this;
+
+      this.client.delete('/asset/id/' + this.model._id).then(function (data) {
+        _this3.loading = false;
+        if (data && data.message) {
+          Materialize.toast(data.message, 5000);
+
+          window.location.hash = '#/asset-list';
+        }
+      });
+    };
+
+    return AdAdmin;
+  }()) || _class);
+});
 define('ad-list/ad-list',['exports', 'aurelia-framework', '../http', 'chart.js', 'aurelia-router'], function (exports, _aureliaFramework, _http, _chart, _aureliaRouter) {
   'use strict';
 
@@ -650,22 +841,11 @@ define('ad-list/ad-list',['exports', 'aurelia-framework', '../http', 'chart.js',
       me.renderGrid();
     };
 
-    AdList.prototype.getProject = function getProject(id, callback) {
-      var _this2 = this;
-
-      this.http.client.get('/project/id/' + id).then(function (res) {
-        if (res && res.data) {
-          _this2.project = res.data[0];
-          callback();
-        }
-      });
-    };
-
     AdList.prototype.renderGrid = function renderGrid(tags) {
       var config = $.extend(true, {
         detailTemplate: kendo.template($('#template').html()),
         columns: [{
-          template: "<a href='\\#asset-details/#:_id#'>#:name#</a>",
+          template: "<a href='\\#ad-details/#:_id#'>#:name#</a>",
           field: 'name',
           title: 'Asset Name',
           width: 150,
@@ -713,7 +893,7 @@ define('ad-list/ad-list',['exports', 'aurelia-framework', '../http', 'chart.js',
 
       if (App.currentUser.privileges.indexOf(1) > -1) {
         config.toolbar.push({
-          template: '<a class="k-button" href="\\#/asset-admin"><span class="k-icon k-i-plus-outline"></span> Create New</a>'
+          template: '<a class="k-button" href="\\#/ad-admin"><span class="k-icon k-i-plus-outline"></span> Create New</a>'
         });
       }
 
@@ -721,7 +901,7 @@ define('ad-list/ad-list',['exports', 'aurelia-framework', '../http', 'chart.js',
         config.dataSource.filter = { field: 'tags', operator: 'eq', value: tags };
       }
 
-      config.dataSource.transport.read.url = App.config.apiUrl + '/asset';
+      config.dataSource.transport.read.url = App.config.apiUrl + '/ad';
 
       if (this.project._id && this.project.assets) {
         config.dataSource.filter = $.extend(config.dataSource.filter, {
@@ -734,186 +914,7 @@ define('ad-list/ad-list',['exports', 'aurelia-framework', '../http', 'chart.js',
       this.grid = $('#assetGrid').kendoGrid(config);
     };
 
-    AdList.prototype.renderEngineRatingChart = function renderEngineRatingChart() {
-      var me = this;
-      var url = this.project._id ? '/statistics/generatorenginerating/' + this.project._id : '/statistics/generatorenginerating/';
-
-      this.loadingEngineRatingChart = true;
-      this.http.client.get(url).then(function (res) {
-        me.noEngineRatingChart = false;
-
-        me.loadingEngineRatingChart = false;
-        if (res && res.data.length && res.data[0].generatorEngineRating) {
-          var engineRating = res.data[0].generatorEngineRating;
-          me.cards.engineRatingChart = new _chart.Chart(me.engineRatingChart, {
-            type: 'pie',
-            data: {
-              labels: ['Prime', 'Continous', 'Stand-by'],
-              datasets: [{
-                data: [engineRating.prime, engineRating.continuous, engineRating.standby],
-                backgroundColor: ['#00838f', '#00acc1', '#b2ebf2', '#e0f7fa'],
-                hoverBackgroundColor: ['#00838f', '#00acc1', '#b2ebf2', '#e0f7fa']
-              }]
-            }
-          });
-        } else {
-          me.noEngineRatingChart = true;
-        }
-      });
-    };
-
-    AdList.prototype.renderCapacityChart = function renderCapacityChart() {
-      var _this3 = this;
-
-      var me = this;
-      var url = this.project._id ? '/statistics/generatorcapacity/' + this.project._id : '/statistics/generatorcapacity/';
-
-      this.loadingCapacityChart = true;
-      this.http.client.get(url).then(function (res) {
-        me.loadingCapacityChart = false;
-        if (res && res.data.length && res.data[0].generatorCapacity) {
-          me.noCapacityChart = false;
-          var data = [];
-          var categories = [];
-          var generatorCapacity = res.data[0].generatorCapacity;
-          for (var rating in generatorCapacity) {
-            data.push(generatorCapacity[rating]);
-            categories.push(rating);
-          }
-
-          $(_this3.capacityChart).kendoChart({
-            title: {
-              text: 'Genset Capacity Statistics'
-            },
-            theme: 'material',
-            legend: {
-              position: 'top'
-            },
-            seriesDefaults: {
-              type: 'column'
-            },
-            seriesColors: ['#00838f', '#0097a7', '#00acc1', '#00bcd4', '#26c6da', '#4dd0e1', '#80deea', '#b2ebf2', '#e0f7fa'],
-            series: [{
-              name: 'Generators',
-              data: data
-            }],
-            valueAxis: {
-              labels: {
-                format: '{0}'
-              },
-              line: {
-                visible: true
-              },
-              axisCrossingValue: 0
-            },
-            categoryAxis: {
-              categories: categories,
-              line: {
-                visible: false
-              }
-
-            },
-            tooltip: {
-              visible: true,
-              format: '{0} kVA',
-              template: '#= series.name #: #= value #'
-            }
-          });
-        } else {
-          me.noCapacityChart = true;
-        }
-      });
-    };
-
     return AdList;
-  }()) || _class);
-});
-define('alarms/alarms',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Alarms = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var Alarms = exports.Alarms = (_dec = (0, _aureliaFramework.inject)(_http.Http), _dec(_class = function () {
-    function Alarms(http) {
-      _classCallCheck(this, Alarms);
-
-      this.http = http;
-    }
-
-    Alarms.prototype.attached = function attached() {
-      App.currentView = this;
-
-      this.renderAlarms();
-    };
-
-    Alarms.prototype.renderAlarms = function renderAlarms() {
-      var me = this;
-
-      var config = $.extend(true, {
-        columns: [{
-          field: '_asset.name',
-          title: 'Asset',
-          template: "# if (_asset) { # <a href='\\#asset-details/#:_asset._id#'>#:_asset.name#</a> #}#"
-        }, { field: 'name', title: 'Alarm' }, {
-          field: 'triggerTime',
-          title: 'Trigger Time',
-          template: '#: App.util.format.dateTime(data.triggerTime, App.currentUser.dateTimeFormat) #'
-        }]
-      }, App.config.grid);
-
-      config.dataBound = function () {};
-
-      if (App.currentUser.privileges.indexOf(5) > -1) {
-        config.columns.push({
-          command: { text: 'Reset', click: me.acknowledgeAlarm },
-          title: 'Command',
-          width: '100px'
-        });
-      }
-
-      config.dataSource.transport.read.url = App.config.apiUrl + '/alarm';
-
-      config.dataSource.filter = { field: 'triggered', operator: 'eq', value: true };
-
-      this.grid = $('#alarms').kendoGrid(config);
-    };
-
-    Alarms.prototype.acknowledgeAlarm = function acknowledgeAlarm(e) {
-      e.preventDefault();
-
-      var dataItem = this.dataItem($(e.currentTarget).closest('tr'));
-
-      kendo.prompt('Please, enter a comment', '').then(function (data) {
-        $.ajax({
-          method: 'PUT',
-          url: App.config.apiUrl + '/alarm/reset',
-          data: { _id: dataItem._id, msg: data, alarm: dataItem.toJSON() },
-          success: function success(res) {
-            kendo.alert('Acknowledgement sucessful');
-
-            App.currentView.renderAlarms();
-          },
-          error: function error(err) {
-            me.renderAlarms();
-          }
-        });
-      }, function () {
-        kendo.alert('Acknowledgement cancelled');
-      });
-    };
-
-    return Alarms;
   }()) || _class);
 });
 define('administration/administration',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
@@ -1029,6 +1030,111 @@ define('administration/administration',['exports', 'aurelia-framework', '../http
 
     return Administration;
   }()) || _class);
+});
+define('alarms/alarms',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Alarms = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var Alarms = exports.Alarms = (_dec = (0, _aureliaFramework.inject)(_http.Http), _dec(_class = function () {
+    function Alarms(http) {
+      _classCallCheck(this, Alarms);
+
+      this.http = http;
+    }
+
+    Alarms.prototype.attached = function attached() {
+      App.currentView = this;
+
+      this.renderAlarms();
+    };
+
+    Alarms.prototype.renderAlarms = function renderAlarms() {
+      var me = this;
+
+      var config = $.extend(true, {
+        columns: [{
+          field: '_asset.name',
+          title: 'Asset',
+          template: "# if (_asset) { # <a href='\\#asset-details/#:_asset._id#'>#:_asset.name#</a> #}#"
+        }, { field: 'name', title: 'Alarm' }, {
+          field: 'triggerTime',
+          title: 'Trigger Time',
+          template: '#: App.util.format.dateTime(data.triggerTime, App.currentUser.dateTimeFormat) #'
+        }]
+      }, App.config.grid);
+
+      config.dataBound = function () {};
+
+      if (App.currentUser.privileges.indexOf(5) > -1) {
+        config.columns.push({
+          command: { text: 'Reset', click: me.acknowledgeAlarm },
+          title: 'Command',
+          width: '100px'
+        });
+      }
+
+      config.dataSource.transport.read.url = App.config.apiUrl + '/alarm';
+
+      config.dataSource.filter = { field: 'triggered', operator: 'eq', value: true };
+
+      this.grid = $('#alarms').kendoGrid(config);
+    };
+
+    Alarms.prototype.acknowledgeAlarm = function acknowledgeAlarm(e) {
+      e.preventDefault();
+
+      var dataItem = this.dataItem($(e.currentTarget).closest('tr'));
+
+      kendo.prompt('Please, enter a comment', '').then(function (data) {
+        $.ajax({
+          method: 'PUT',
+          url: App.config.apiUrl + '/alarm/reset',
+          data: { _id: dataItem._id, msg: data, alarm: dataItem.toJSON() },
+          success: function success(res) {
+            kendo.alert('Acknowledgement sucessful');
+
+            App.currentView.renderAlarms();
+          },
+          error: function error(err) {
+            me.renderAlarms();
+          }
+        });
+      }, function () {
+        kendo.alert('Acknowledgement cancelled');
+      });
+    };
+
+    return Alarms;
+  }()) || _class);
+});
+define('app-footer/app-footer',["exports"], function (exports) {
+    "use strict";
+
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var AppFooter = exports.AppFooter = function AppFooter() {
+        _classCallCheck(this, AppFooter);
+    };
 });
 define('app-header/app-header',['exports', 'aurelia-framework', 'aurelia-router'], function (exports, _aureliaFramework, _aureliaRouter) {
   'use strict';
@@ -1211,23 +1317,6 @@ define('app-navbar/app-navbar',['exports', 'aurelia-framework', '../http'], func
     return AppNavbar;
   }()) || _class);
 });
-define('app-footer/app-footer',["exports"], function (exports) {
-    "use strict";
-
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
-
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    var AppFooter = exports.AppFooter = function AppFooter() {
-        _classCallCheck(this, AppFooter);
-    };
-});
 define('app-notifications/app-notifications',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
   'use strict';
 
@@ -1258,8 +1347,6 @@ define('app-notifications/app-notifications',['exports', 'aurelia-framework', '.
     }
 
     AppNotifications.prototype.attached = function attached() {
-      var _this = this;
-
       console.log('notification bar');
 
       $('.sidebar-collapse').sideNav({
@@ -1285,16 +1372,10 @@ define('app-notifications/app-notifications',['exports', 'aurelia-framework', '.
       $('.rightside-navigation').height(righttnav).perfectScrollbar({
         suppressScrollX: true
       });
-
-      this.getNotifications();
-
-      setInterval(function () {
-        _this.getNotifications();
-      }, 30000);
     };
 
     AppNotifications.prototype.getNotifications = function getNotifications() {
-      var _this2 = this;
+      var _this = this;
 
       this.alarms = [];
       this.notifications = [];
@@ -1307,7 +1388,7 @@ define('app-notifications/app-notifications',['exports', 'aurelia-framework', '.
               if (cache[i].objectType) {
                 switch (cache[i].objectType) {
                   case 'Alarm':
-                    _this2.alarms.push(cache[i]);
+                    _this.alarms.push(cache[i]);
                     break;
                   default:
                     break;
@@ -2105,108 +2186,6 @@ define('asset-details/asset-details',['exports', 'aurelia-framework', '../http',
     return AssetDetails;
   }()) || _class);
 });
-define('commands/commands',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Commands = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var Commands = exports.Commands = (_dec = (0, _aureliaFramework.inject)(_http.Http), _dec(_class = function () {
-    function Commands(http) {
-      _classCallCheck(this, Commands);
-
-      this.imeis = [];
-      this.interfaceMap = [];
-      this.btnText = 'Send Command';
-      this.btnDisable = false;
-
-      this.http = http;
-    }
-
-    Commands.prototype.attached = function attached() {
-      var me = this;
-      App.currentView = this;
-
-      $('#command-multiselect').kendoMultiSelect({
-        autoBind: true,
-        dataTextField: 'name',
-        dataValueField: 'name',
-        filter: 'contains',
-        suggest: true,
-        index: 3,
-        select: function select(data) {
-          me.imeis.push(data.dataItem.sensor);
-          me.interfaceMap.push(data.dataItem.interfaceType);
-        },
-        deselect: function deselect(data) {
-          console.log('deselect');
-          var index = me.imeis.indexOf(data.dataItem.sensor);
-          if (index > -1) {
-            me.imeis.splice(index, 1);
-            me.interfaceMap.splice(index, 1);
-          }
-        },
-        dataSource: {
-          type: 'odata',
-          serverFiltering: false,
-          transport: {
-            read: {
-              url: App.config.apiUrl + '/asset',
-              type: 'GET',
-              contentType: 'application/json',
-              accept: 'application/json, text/plain, */*',
-              dataType: 'json',
-              xhrFields: { withCredentials: true }
-            }
-          },
-          schema: {
-            data: 'data.docs',
-            total: 'data.total',
-            model: {
-              fields: {
-                eventTime: { type: 'date' },
-                createdTime: { type: 'date' },
-                updated_at: { type: 'date' },
-                created_at: { type: 'date' }
-              }
-            }
-          }
-        }
-      });
-    };
-
-    Commands.prototype.sendCommand = function sendCommand() {
-      var _this = this;
-
-      this.btnText = 'Sending';
-      this.btnDisable = true;
-
-      this.http.client.post('/asset/rawcommand', {
-        imeis: this.imeis,
-        interfaceMap: this.interfaceMap,
-        command: this.rawCommand
-      }).then(function (res) {
-        _this.btnText = 'Send Command';
-        _this.btnDisable = false;
-        if (res && res.message) {
-          Materialize.toast(res.message, 3000);
-        }
-      });
-    };
-
-    return Commands;
-  }()) || _class);
-});
 define('asset-list/asset-list',['exports', 'aurelia-framework', '../http', 'chart.js', 'aurelia-router'], function (exports, _aureliaFramework, _http, _chart, _aureliaRouter) {
   'use strict';
 
@@ -2451,6 +2430,108 @@ define('asset-list/asset-list',['exports', 'aurelia-framework', '../http', 'char
     };
 
     return AssetList;
+  }()) || _class);
+});
+define('commands/commands',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Commands = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var Commands = exports.Commands = (_dec = (0, _aureliaFramework.inject)(_http.Http), _dec(_class = function () {
+    function Commands(http) {
+      _classCallCheck(this, Commands);
+
+      this.imeis = [];
+      this.interfaceMap = [];
+      this.btnText = 'Send Command';
+      this.btnDisable = false;
+
+      this.http = http;
+    }
+
+    Commands.prototype.attached = function attached() {
+      var me = this;
+      App.currentView = this;
+
+      $('#command-multiselect').kendoMultiSelect({
+        autoBind: true,
+        dataTextField: 'name',
+        dataValueField: 'name',
+        filter: 'contains',
+        suggest: true,
+        index: 3,
+        select: function select(data) {
+          me.imeis.push(data.dataItem.sensor);
+          me.interfaceMap.push(data.dataItem.interfaceType);
+        },
+        deselect: function deselect(data) {
+          console.log('deselect');
+          var index = me.imeis.indexOf(data.dataItem.sensor);
+          if (index > -1) {
+            me.imeis.splice(index, 1);
+            me.interfaceMap.splice(index, 1);
+          }
+        },
+        dataSource: {
+          type: 'odata',
+          serverFiltering: false,
+          transport: {
+            read: {
+              url: App.config.apiUrl + '/asset',
+              type: 'GET',
+              contentType: 'application/json',
+              accept: 'application/json, text/plain, */*',
+              dataType: 'json',
+              xhrFields: { withCredentials: true }
+            }
+          },
+          schema: {
+            data: 'data.docs',
+            total: 'data.total',
+            model: {
+              fields: {
+                eventTime: { type: 'date' },
+                createdTime: { type: 'date' },
+                updated_at: { type: 'date' },
+                created_at: { type: 'date' }
+              }
+            }
+          }
+        }
+      });
+    };
+
+    Commands.prototype.sendCommand = function sendCommand() {
+      var _this = this;
+
+      this.btnText = 'Sending';
+      this.btnDisable = true;
+
+      this.http.client.post('/asset/rawcommand', {
+        imeis: this.imeis,
+        interfaceMap: this.interfaceMap,
+        command: this.rawCommand
+      }).then(function (res) {
+        _this.btnText = 'Send Command';
+        _this.btnDisable = false;
+        if (res && res.message) {
+          Materialize.toast(res.message, 3000);
+        }
+      });
+    };
+
+    return Commands;
   }()) || _class);
 });
 define('geofences/geofences',['exports', 'aurelia-framework', '../http', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _http, _aureliaFetchClient) {
@@ -4894,587 +4975,16 @@ define('user-admin/user-admin',['exports', 'aurelia-framework', '../http', 'aure
     return UserAdmin;
   }()) || _class);
 });
-define('asset-admin - Copy/asset-admin',['exports', 'aurelia-framework', '../http', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _http, _aureliaFetchClient) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.AssetAdmin = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var AssetAdmin = exports.AssetAdmin = (_dec = (0, _aureliaFramework.inject)(_http.Http, _aureliaFetchClient.HttpClient), _dec(_class = function () {
-    function AssetAdmin(http, httpClient) {
-      _classCallCheck(this, AssetAdmin);
-
-      this.loading = true;
-      this.model = {
-        features: App.config.features
-      };
-      this.update = false;
-
-      this.client = http.client;
-      this.fetchAPI = httpClient;
-    }
-
-    AssetAdmin.prototype.activate = function activate(params) {
-      var _this = this;
-
-      if (params.id) {
-        this.update = true;
-        this.client.get('/asset/id/' + params.id).then(function (res) {
-          _this.loading = false;
-          if (res && res.data) {
-            _this.model = $.extend(true, _this.model, res.data[0]);
-
-            _this.tagger.add(_this.model.tags);
-
-            if (_this.model.generatorFrequency) {
-              $(_this.generatorFrequency).data('kendoDropDownList').value(_this.model.generatorFrequency);
-            }
-            if (_this.model.generatorEngineRating) {
-              $(_this.generatorEngineRating).data('kendoDropDownList').value(_this.model.generatorEngineRating);
-            }
-            if (_this.model.status) {
-              $(_this.status).data('kendoDropDownList').value(_this.model.status);
-            }
-            if (_this.model.interfaceType) {
-              $(_this.interfaceType).data('kendoDropDownList').value(_this.model.interfaceType);
-            }
-          }
-        });
-      } else {
-        this.loading = false;
-      }
-    };
-
-    AssetAdmin.prototype.attached = function attached() {
-      var me = this;
-
-      this.tagger = new Taggle('admin-tags', {
-        allowDuplicates: false
-      });
-
-      $(this.generatorFrequency).kendoDropDownList({
-        dataSource: App.config.generatorFrequency,
-
-        change: function change() {
-          me.model.generatorFrequency = this.value();
-        }
-      });
-
-      $(this.generatorEngineRating).kendoDropDownList({
-        dataSource: App.config.generatorEngineRating,
-
-        change: function change() {
-          me.model.generatorEngineRating = this.value();
-        }
-      });
-
-      $(this.status).kendoDropDownList({
-        dataSource: App.config.generatorStatus,
-
-        change: function change() {
-          me.model.status = this.value();
-        }
-      });
-
-      $(this.interfaceType).kendoDropDownList({
-        dataSource: App.config.interfaceType,
-
-        change: function change() {
-          me.model.interfaceType = this.value();
-        }
-      });
-    };
-
-    AssetAdmin.prototype.uploadAssetImage = function uploadAssetImage(images) {
-      console.log('uploadAssetImage');
-      if (images && images[0]) {
-        var image = images[0];
-        var filename = void 0;
-
-        switch (image.type) {
-          case 'image/png':
-            filename = this.model._id + '.png';
-            break;
-
-          case 'image/jpeg':
-            filename = this.model._id + '.jpg';
-            break;
-
-          default:
-            Materialize.toast('Please upload a .jpg or .png file', 3000);
-            break;
-        }
-        if (filename && this.model._id) {
-          var me = this;
-
-          var formData = new FormData();
-          formData.append('images', image, filename);
-          formData.append('_id', this.model._id);
-
-          this.fetchAPI.fetch(App.config.apiUrl + '/asset/photo', {
-            method: 'POST',
-            body: formData
-          }).then(function (response) {
-            return response.json();
-          }).then(function (data) {
-            if (data) {
-              Materialize.toast('Asset image uploaded successfully.', 3000);
-            }
-          }).catch(function (error) {
-            return Materialize.toast(error.message, 5000);
-          });
-        }
-      } else {
-        Materialize.toast('Please upload an image.', 2000);
-      }
-    };
-
-    AssetAdmin.prototype.submit = function submit() {
-      var _this2 = this;
-
-      this.loading = true;
-
-      if (this.tagger) {
-        this.model.tags = this.tagger.getTags().values;
-      }
-
-      if (this.update) {
-        this.client.put('/asset/id/' + this.model._id, this.model).then(function (data) {
-          _this2.loading = false;
-          if (data && data.message) {
-            Materialize.toast(data.message, 5000);
-
-            window.location.hash = '#/asset-list';
-          }
-        });
-      } else {
-        this.client.post('/asset/', this.model).then(function (data) {
-          _this2.loading = false;
-          if (data && data.message) {
-            Materialize.toast(data.message, 5000);
-
-            window.location.hash = '#/asset-list';
-          }
-        });
-      }
-    };
-
-    AssetAdmin.prototype.delete = function _delete() {
-      var _this3 = this;
-
-      this.client.delete('/asset/id/' + this.model._id).then(function (data) {
-        _this3.loading = false;
-        if (data && data.message) {
-          Materialize.toast(data.message, 5000);
-
-          window.location.hash = '#/asset-list';
-        }
-      });
-    };
-
-    return AssetAdmin;
-  }()) || _class);
-});
-define('ad-admin/asset-admin',['exports', 'aurelia-framework', '../http', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _http, _aureliaFetchClient) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.AssetAdmin = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var AssetAdmin = exports.AssetAdmin = (_dec = (0, _aureliaFramework.inject)(_http.Http, _aureliaFetchClient.HttpClient), _dec(_class = function () {
-    function AssetAdmin(http, httpClient) {
-      _classCallCheck(this, AssetAdmin);
-
-      this.loading = true;
-      this.model = {
-        features: App.config.features
-      };
-      this.update = false;
-
-      this.client = http.client;
-      this.fetchAPI = httpClient;
-    }
-
-    AssetAdmin.prototype.activate = function activate(params) {
-      var _this = this;
-
-      if (params.id) {
-        this.update = true;
-        this.client.get('/asset/id/' + params.id).then(function (res) {
-          _this.loading = false;
-          if (res && res.data) {
-            _this.model = $.extend(true, _this.model, res.data[0]);
-
-            _this.tagger.add(_this.model.tags);
-
-            if (_this.model.generatorFrequency) {
-              $(_this.generatorFrequency).data('kendoDropDownList').value(_this.model.generatorFrequency);
-            }
-            if (_this.model.generatorEngineRating) {
-              $(_this.generatorEngineRating).data('kendoDropDownList').value(_this.model.generatorEngineRating);
-            }
-            if (_this.model.status) {
-              $(_this.status).data('kendoDropDownList').value(_this.model.status);
-            }
-            if (_this.model.interfaceType) {
-              $(_this.interfaceType).data('kendoDropDownList').value(_this.model.interfaceType);
-            }
-          }
-        });
-      } else {
-        this.loading = false;
-      }
-    };
-
-    AssetAdmin.prototype.attached = function attached() {
-      var me = this;
-
-      this.tagger = new Taggle('admin-tags', {
-        allowDuplicates: false
-      });
-
-      $(this.generatorFrequency).kendoDropDownList({
-        dataSource: App.config.generatorFrequency,
-
-        change: function change() {
-          me.model.generatorFrequency = this.value();
-        }
-      });
-
-      $(this.generatorEngineRating).kendoDropDownList({
-        dataSource: App.config.generatorEngineRating,
-
-        change: function change() {
-          me.model.generatorEngineRating = this.value();
-        }
-      });
-
-      $(this.status).kendoDropDownList({
-        dataSource: App.config.generatorStatus,
-
-        change: function change() {
-          me.model.status = this.value();
-        }
-      });
-
-      $(this.interfaceType).kendoDropDownList({
-        dataSource: App.config.interfaceType,
-
-        change: function change() {
-          me.model.interfaceType = this.value();
-        }
-      });
-    };
-
-    AssetAdmin.prototype.uploadAssetImage = function uploadAssetImage(images) {
-      console.log('uploadAssetImage');
-      if (images && images[0]) {
-        var image = images[0];
-        var filename = void 0;
-
-        switch (image.type) {
-          case 'image/png':
-            filename = this.model._id + '.png';
-            break;
-
-          case 'image/jpeg':
-            filename = this.model._id + '.jpg';
-            break;
-
-          default:
-            Materialize.toast('Please upload a .jpg or .png file', 3000);
-            break;
-        }
-        if (filename && this.model._id) {
-          var me = this;
-
-          var formData = new FormData();
-          formData.append('images', image, filename);
-          formData.append('_id', this.model._id);
-
-          this.fetchAPI.fetch(App.config.apiUrl + '/asset/photo', {
-            method: 'POST',
-            body: formData
-          }).then(function (response) {
-            return response.json();
-          }).then(function (data) {
-            if (data) {
-              Materialize.toast('Asset image uploaded successfully.', 3000);
-            }
-          }).catch(function (error) {
-            return Materialize.toast(error.message, 5000);
-          });
-        }
-      } else {
-        Materialize.toast('Please upload an image.', 2000);
-      }
-    };
-
-    AssetAdmin.prototype.submit = function submit() {
-      var _this2 = this;
-
-      this.loading = true;
-
-      if (this.tagger) {
-        this.model.tags = this.tagger.getTags().values;
-      }
-
-      if (this.update) {
-        this.client.put('/asset/id/' + this.model._id, this.model).then(function (data) {
-          _this2.loading = false;
-          if (data && data.message) {
-            Materialize.toast(data.message, 5000);
-
-            window.location.hash = '#/asset-list';
-          }
-        });
-      } else {
-        this.client.post('/asset/', this.model).then(function (data) {
-          _this2.loading = false;
-          if (data && data.message) {
-            Materialize.toast(data.message, 5000);
-
-            window.location.hash = '#/asset-list';
-          }
-        });
-      }
-    };
-
-    AssetAdmin.prototype.delete = function _delete() {
-      var _this3 = this;
-
-      this.client.delete('/asset/id/' + this.model._id).then(function (data) {
-        _this3.loading = false;
-        if (data && data.message) {
-          Materialize.toast(data.message, 5000);
-
-          window.location.hash = '#/asset-list';
-        }
-      });
-    };
-
-    return AssetAdmin;
-  }()) || _class);
-});
-define('ad-admin/ad-admin',['exports', 'aurelia-framework', '../http', 'aurelia-fetch-client'], function (exports, _aureliaFramework, _http, _aureliaFetchClient) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.AdAdmin = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var AdAdmin = exports.AdAdmin = (_dec = (0, _aureliaFramework.inject)(_http.Http, _aureliaFetchClient.HttpClient), _dec(_class = function () {
-    function AdAdmin(http, httpClient) {
-      _classCallCheck(this, AdAdmin);
-
-      this.loading = true;
-      this.model = {
-        features: App.config.features
-      };
-      this.update = false;
-
-      this.client = http.client;
-      this.fetchAPI = httpClient;
-    }
-
-    AdAdmin.prototype.activate = function activate(params) {
-      var _this = this;
-
-      if (params.id) {
-        this.update = true;
-        this.client.get('/asset/id/' + params.id).then(function (res) {
-          _this.loading = false;
-          if (res && res.data) {
-            _this.model = $.extend(true, _this.model, res.data[0]);
-
-            _this.tagger.add(_this.model.tags);
-
-            if (_this.model.generatorFrequency) {
-              $(_this.generatorFrequency).data('kendoDropDownList').value(_this.model.generatorFrequency);
-            }
-            if (_this.model.generatorEngineRating) {
-              $(_this.generatorEngineRating).data('kendoDropDownList').value(_this.model.generatorEngineRating);
-            }
-            if (_this.model.status) {
-              $(_this.status).data('kendoDropDownList').value(_this.model.status);
-            }
-            if (_this.model.interfaceType) {
-              $(_this.interfaceType).data('kendoDropDownList').value(_this.model.interfaceType);
-            }
-          }
-        });
-      } else {
-        this.loading = false;
-      }
-    };
-
-    AdAdmin.prototype.attached = function attached() {
-      var me = this;
-
-      this.tagger = new Taggle('admin-tags', {
-        allowDuplicates: false
-      });
-
-      $(this.generatorFrequency).kendoDropDownList({
-        dataSource: App.config.generatorFrequency,
-
-        change: function change() {
-          me.model.generatorFrequency = this.value();
-        }
-      });
-
-      $(this.generatorEngineRating).kendoDropDownList({
-        dataSource: App.config.generatorEngineRating,
-
-        change: function change() {
-          me.model.generatorEngineRating = this.value();
-        }
-      });
-
-      $(this.status).kendoDropDownList({
-        dataSource: App.config.generatorStatus,
-
-        change: function change() {
-          me.model.status = this.value();
-        }
-      });
-
-      $(this.interfaceType).kendoDropDownList({
-        dataSource: App.config.interfaceType,
-
-        change: function change() {
-          me.model.interfaceType = this.value();
-        }
-      });
-    };
-
-    AdAdmin.prototype.uploadAssetImage = function uploadAssetImage(images) {
-      console.log('uploadAssetImage');
-      if (images && images[0]) {
-        var image = images[0];
-        var filename = void 0;
-
-        switch (image.type) {
-          case 'image/png':
-            filename = this.model._id + '.png';
-            break;
-
-          case 'image/jpeg':
-            filename = this.model._id + '.jpg';
-            break;
-
-          default:
-            Materialize.toast('Please upload a .jpg or .png file', 3000);
-            break;
-        }
-        if (filename && this.model._id) {
-          var me = this;
-
-          var formData = new FormData();
-          formData.append('images', image, filename);
-          formData.append('_id', this.model._id);
-
-          this.fetchAPI.fetch(App.config.apiUrl + '/asset/photo', {
-            method: 'POST',
-            body: formData
-          }).then(function (response) {
-            return response.json();
-          }).then(function (data) {
-            if (data) {
-              Materialize.toast('Asset image uploaded successfully.', 3000);
-            }
-          }).catch(function (error) {
-            return Materialize.toast(error.message, 5000);
-          });
-        }
-      } else {
-        Materialize.toast('Please upload an image.', 2000);
-      }
-    };
-
-    AdAdmin.prototype.submit = function submit() {
-      var _this2 = this;
-
-      this.loading = true;
-
-      if (this.tagger) {
-        this.model.tags = this.tagger.getTags().values;
-      }
-
-      if (this.update) {
-        this.client.put('/asset/id/' + this.model._id, this.model).then(function (data) {
-          _this2.loading = false;
-          if (data && data.message) {
-            Materialize.toast(data.message, 5000);
-
-            window.location.hash = '#/asset-list';
-          }
-        });
-      } else {
-        this.client.post('/asset/', this.model).then(function (data) {
-          _this2.loading = false;
-          if (data && data.message) {
-            Materialize.toast(data.message, 5000);
-
-            window.location.hash = '#/asset-list';
-          }
-        });
-      }
-    };
-
-    AdAdmin.prototype.delete = function _delete() {
-      var _this3 = this;
-
-      this.client.delete('/asset/id/' + this.model._id).then(function (data) {
-        _this3.loading = false;
-        if (data && data.message) {
-          Materialize.toast(data.message, 5000);
-
-          window.location.hash = '#/asset-list';
-        }
-      });
-    };
-
-    return AdAdmin;
-  }()) || _class);
-});
-define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./app.css\"></require><require from=\"./app-header/app-header\"></require><require from=\"./app-navbar/app-navbar\"></require><require from=\"./app-notifications/app-notifications\"></require><require from=\"./app-footer/app-footer\"></require><app-header></app-header><div id=\"main\"><div class=\"wrapper\"><app-navbar></app-navbar><section id=\"content\"><div class=\"container\"><div class=\"section\"><router-view></router-view></div></div></section><app-notifications></app-notifications></div></div><app-footer></app-footer></template>"; });
 define('text!app.css', ['module'], function(module) { module.exports = "body{\r\n    background-color: #fff;\r\n}\r\n\r\nfooter{\r\n  z-index: 3;\r\n    position:fixed;\r\n    padding-top:50px;\r\n    background-color:red;\r\n    bottom:0px;\r\n    left:0px;\r\n    right:0px;\r\n    margin-bottom:0px;\r\n}\r\n\r\nfooter.page-footer .footer-copyright {\r\n    height: 35px;\r\n    line-height: 35px;\r\n}"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./app.css\"></require><require from=\"./app-header/app-header\"></require><require from=\"./app-navbar/app-navbar\"></require><require from=\"./app-notifications/app-notifications\"></require><require from=\"./app-footer/app-footer\"></require><app-header></app-header><div id=\"main\"><div class=\"wrapper\"><app-navbar></app-navbar><section id=\"content\"><div class=\"container\"><div class=\"section\"><router-view></router-view></div></div></section><app-notifications></app-notifications></div></div><app-footer></app-footer></template>"; });
+define('text!ad-admin/ad-admin.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"loading\" class=\"loader\"><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"progress\"><div class=\"indeterminate\"></div></div></div></div></div><div show.bind=\"!loading\"><div class=\"row\"><div class=\"col s12 m7 l7\"><div class=\"card-panel\"><h4 class=\"header2\">Ad Attributes</h4><div class=\"row\"><form class=\"col s12\"><div class=\"input-field col s12\"><div class=\"card\"><div class=\"card-content\"><h4 class=\"header2\">Ad Image</h4><div class=\"input-field col s12\"><img class=\"materialboxed\" width=\"100\" height=\"100\" src=\"./uploads/users/${model.imageUrl}\"></div><div class=\"input-field col s12\"><input class=\"input\" type=\"file\" files.bind=\"images\"> <button class=\"btn cyan waves-effect waves-light right upload-btn\" click.delegate=\"uploadAvatar(images)\">Upload</button></div></div></div></div><div class=\"input-field col s12\">Name * <input id=\"adname\" type=\"text\" value.bind=\"model.name\" name=\"name\" required></div><div class=\"input-field col s12\">Linked URL * <input id=\"linkedUrl\" type=\"text\" value.bind=\"model.model\" name=\"model\" required></div><div class=\"input-field col s12\"><div id=\"admin-tags\"></div></div></form></div></div></div><div class=\"col s12 m6 l6\"></div></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><div show.bind=\"!update\"><button class=\"btn cyan waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Add</button></div><div show.bind=\"update\"><button class=\"btn blue waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Update</button> <button class=\"btn red waves-effect waves-light\" click.delegate=\"delete()\">Delete</button></div></div></div></div></div></template>"; });
+define('text!ad-admin/ad-admin.css', ['module'], function(module) { module.exports = ""; });
 define('text!ad-list/ad-list.css', ['module'], function(module) { module.exports = ""; });
-define('text!ad-list/ad-list.html', ['module'], function(module) { module.exports = "<template><div class=\"row\"><div class=\"input-field col s12\"><div id=\"list-tags\"></div></div></div><div class=\"card\"><div id=\"assetGrid\"></div><script type=\"text/x-kendo-template\" id=\"template\"><div class=\"row\">\r\n                <div class=\"col s0 m12 l6\">\r\n                    <ul id=\"projects-collection\" class=\"collection\">\r\n                        <li class=\"collection-item avatar\">\r\n                            <span class=\"secondary-content\">\r\n                  <div class=\"row\">\r\n                      <div class=\"col s6\">\r\n                        <a class=\"btn waves-effect waves-light btn-small cyan\"  href='\\\\#asset-details/#:_id#'>View</a>\r\n                      </div>\r\n                      <div class=\"col s5\" style=\"display: #=(App.currentUser.privileges.indexOf(1) > -1)? 'hidden':'none'#\">\r\n                        <a class=\"btn btn-small waves-effect waves-light cyan darken-4\" href='\\\\#ad-admin?id=#:_id#'>Edit</a>\r\n                      </div>\r\n                    </div>\r\n                </span>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Asset Name</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.name || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Control Panel Manufacturer</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.controlPanelManufacturer || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Year of Manufacture</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.yearOfManufacture || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Power Rating</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.powerRating || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Generator Engine Rating</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.generatorEngineRating || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Generator Frequency</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#: data.generatorFrequency  || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Tags</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">\r\n                                        <!--<span class=\"task-cat cyan\">#: tags #</span> -->\r\n                                        #if(typeof data.tags != 'undefined') {# #for (var i=0,len=data.tags.length; i\r\n                                        <len;i++){ # <span class=\"task-cat cyan\">#: data.tags[i] #</span>\r\n                                            # } # # } #\r\n                                    </p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Projects</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">\r\n                                        <!--<span class=\"task-cat cyan\">#: _projects #</span> -->\r\n                                        #if(typeof data._projects != 'undefined') {# #for (var i=0,len=data._projects.length; i\r\n                                        <len;i++){ # <span class=\"task-cat cyan\">#: data._projects[i].name #</span>\r\n                                            # } # # } #\r\n                                    </p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div></script></div></template>"; });
+define('text!ad-list/ad-list.html', ['module'], function(module) { module.exports = "<template><div class=\"row\"><div class=\"input-field col s12\"><div id=\"list-tags\"></div></div></div><div class=\"card\"><div id=\"assetGrid\"></div><script type=\"text/x-kendo-template\" id=\"template\"><div class=\"row\">\r\n                <div class=\"col s0 m12 l6\">\r\n                    <ul id=\"projects-collection\" class=\"collection\">\r\n                        <li class=\"collection-item avatar\">\r\n                            <span class=\"secondary-content\">\r\n                  <div class=\"row\">\r\n                      <div class=\"col s6\">\r\n                        <a class=\"btn waves-effect waves-light btn-small cyan\"  href='\\\\#ad-details/#:_id#'>View</a>\r\n                      </div>\r\n                      <div class=\"col s5\" style=\"display: #=(App.currentUser.privileges.indexOf(1) > -1)? 'hidden':'none'#\">\r\n                        <a class=\"btn btn-small waves-effect waves-light cyan darken-4\" href='\\\\#ad-admin?id=#:_id#'>Edit</a>\r\n                      </div>\r\n                    </div>\r\n                </span>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Asset Name</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.name || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Control Panel Manufacturer</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.controlPanelManufacturer || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Year of Manufacture</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.yearOfManufacture || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Power Rating</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.powerRating || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Generator Engine Rating</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.generatorEngineRating || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Generator Frequency</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#: data.generatorFrequency  || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Tags</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">\r\n                                        <!--<span class=\"task-cat cyan\">#: tags #</span> -->\r\n                                        #if(typeof data.tags != 'undefined') {# #for (var i=0,len=data.tags.length; i\r\n                                        <len;i++){ # <span class=\"task-cat cyan\">#: data.tags[i] #</span>\r\n                                            # } # # } #\r\n                                    </p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Projects</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">\r\n                                        <!--<span class=\"task-cat cyan\">#: _projects #</span> -->\r\n                                        #if(typeof data._projects != 'undefined') {# #for (var i=0,len=data._projects.length; i\r\n                                        <len;i++){ # <span class=\"task-cat cyan\">#: data._projects[i].name #</span>\r\n                                            # } # # } #\r\n                                    </p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div></script></div></template>"; });
 define('text!asset-admin/asset-admin.css', ['module'], function(module) { module.exports = ""; });
-define('text!alarms/alarms.html', ['module'], function(module) { module.exports = "<template><div class=\"card\"><div class=\"collapsible-header active red darken-4 white-text\"><i class=\"mdi-alert-warning\"></i>Active Alarms</div><div id=\"alarms\"></div></div></template>"; });
-define('text!asset-list/asset-list.css', ['module'], function(module) { module.exports = ""; });
 define('text!administration/administration.html', ['module'], function(module) { module.exports = "<template><div class=\"tabstrip\"><ul><li class=\"k-state-active\">Users</li><li>SMTP</li></ul><div><div class=\"card\"><div class=\"collapsible-header active indigo darken-4 white-text\"></div><i class=\"mdi-social-person\"></i>Users</div><div id=\"appUsers\"></div><script type=\"text/x-kendo-template\" id=\"template\"><div class=\"row\">\r\n                        <div class=\"col s0 m12 l6\">\r\n                            <ul id=\"projects-collection\" class=\"collection\">\r\n                                <li class=\"collection-item avatar\">\r\n                                    <span class=\"secondary-content\">\r\n                  <div class=\"row\">\r\n                      <!--<div class=\"col s6\">\r\n                        <a class=\"btn btn-small cyan darken-1 waves-effect waves-light\"  href='\\\\#asset-details/#:_id#'>View</a>\r\n                      </div>-->\r\n                      <div class=\"col s5\">\r\n                        <a class=\"btn btn-small cyan darken-2 waves-effect waves-light\" href='\\\\#user-admin/#:_id#'>Edit</a>\r\n                      </div>\r\n                    </div>\r\n                </span>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Image</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <img src=\"./uploads/users/#if(imageUrl){# #:imageUrl# #} else{# #:'default.png'# #}#\" onError=\"this.src = './uploads/users/default.png'\"\r\n                                                class=\"circle responsive-img valign profile-image\">\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">DOB</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:dob#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Email</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:email#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Distance Unit</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:distance#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Pressure Unit</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:pressure#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Speed Unit</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:speed#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Volume Unit</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:volume#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n                    </div></script></div></div><div><div class=\"card-panel\"><h4 class=\"header2\">SMTP Settings</h4><div class=\"row\"><form class=\"col s12\"><div class=\"row\"><div class=\"input-field col s12\">Username <input id=\"asset_name\" type=\"text\" value.bind=\"smtp.user\" name=\"user\" required></div><div class=\"input-field col s12\">Password <input id=\"smtp_name\" type=\"password\" value.bind=\"smtp.pass\" name=\"pass\" required></div><div class=\"input-field col s12 m6\">Port <input id=\"smtp_name\" type=\"text\" value.bind=\"smtp.port\" name=\"port\" required></div><div class=\"input-field col s12 m6\">Host <input id=\"smtp_name\" type=\"text\" value.bind=\"smtp.host\" name=\"host\" required></div></div></form></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><button class=\"btn cyan waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Update</button></div></div></div></div></div></template>"; });
+define('text!asset-list/asset-list.css', ['module'], function(module) { module.exports = ""; });
+define('text!alarms/alarms.html', ['module'], function(module) { module.exports = "<template><div class=\"card\"><div class=\"collapsible-header active red darken-4 white-text\"><i class=\"mdi-alert-warning\"></i>Active Alarms</div><div id=\"alarms\"></div></div></template>"; });
 define('text!login/user-password.css', ['module'], function(module) { module.exports = "html,body{ \r\n\twidth:100%;\r\n\theight:100%;\r\n\t/*background:#111;*/\r\n}\r\n/* ---- particles.js container ---- */\r\n\r\n#particles-js{\r\n  width: 100%;\r\n  height: 100%;\r\n  background-color: #000;\r\n  background-image: url('');\r\n  background-size: cover;\r\n  background-position: 50% 50%;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n\r\n#login-page{\r\n  position: absolute;\r\n  width: 300px;\r\n  height: 200px;\r\n  z-index: 15;\r\n  top: 40%;\r\n  left: 50%;\r\n  margin: -100px 0 0 -150px;\r\n}"; });
 define('text!app-footer/app-footer.html', ['module'], function(module) { module.exports = "<template><footer class=\"page-footer\"><div class=\"footer-copyright\"><div class=\"container\">Copyright © 2017 <a class=\"grey-text text-lighten-4\" href=\"#\" target=\"_blank\">RAZRADMIN</a> All rights reserved. <span class=\"right\">Designed and Developed by <a class=\"grey-text text-lighten-4\" href=\"http://razrlab.com\">RAZRLAB</a></span></div></div></footer></template>"; });
 define('text!app-header/app-header.html', ['module'], function(module) { module.exports = "<template><header id=\"header\" class=\"page-topbar\"><div class=\"navbar-fixed\"><nav id=\"headerNavBar\"><div class=\"nav-wrapper\"><h1 class=\"logo-wrapper\"><h1 class=\"logo-wrapper hide-on-med-and-down\"><a href=\"index.html\" class=\"brand-logo darken-1\"><img src=\"images/logo/turquoise-sm.png\" alt=\"materialize logo\"></a><span class=\"logo-text\">Materialize</span></h1><ul class=\"right hide-on-med-and-down\"><li><a href=\"javascript:void(0);\" click.delegate=\"toggleFullScreen()\" class=\"waves-effect waves-block waves-light toggle-fullscreen\"><i class=\"mdi-action-settings-overscan\"></i></a></li></ul><ul class=\"right\"><li><input id=\"universal-search\" style=\"width:100%\"></li><li><a href=\"#\" data-activates=\"chat-out\" class=\"waves-effect waves-block waves-light chat-collapse\"><i class=\"mdi-communication-chat\"></i></a></li></ul></h1></div></nav></div></header></template>"; });
@@ -5484,11 +4994,11 @@ define('text!asset-admin/asset-admin.html', ['module'], function(module) { modul
 define('text!asset-details/asset-details.html', ['module'], function(module) { module.exports = "<template><require from=\"../map/map\"></require><div show.bind=\"loading\" class=\"loader\"><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"progress\"><div class=\"indeterminate\"></div></div></div></div></div><div show.bind=\"!loading\"><div class=\"k-content\"><div id=\"tabstrip\"><ul><li class=\"k-state-active\">Attributes</li><li click.delegate=\"renderEvents()\">Events</li><li click.delegate=\"renderAssetAlarms()\">Alarms</li></ul><div><div id=\"details\" class=\"col s12\"><div id=\"card-stats\"><div class=\"row\"><div class=\"col s12 m4 l4\"><div class=\"card\"><div class=\"card-content blue darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><i class=\"mdi-image-flash-on medium\"></i></div><div class=\"col s9\"><p class=\"card-stats-title\">Average power output</p><h4 class=\"card-stats-number\">${stats.averagePowerOutput}</h4><p class=\"card-stats-compare\" show.bind=\"!stats.controls.averagePowerOutput\"><span class=\"green-text text-lighten-5\">past 24 hours</span></p><p class=\"card-stats-compare\" show.bind=\"stats.controls.averagePowerOutput\"><span class=\"green-text text-lighten-5\">past 7 days</span></p></div></div></div><div class=\"card-action\"><div class=\"switch card-switch\" click.delegate=\"toggleStats('averagePowerOutput')\"><label class=\"black-text\">Day <input type=\"checkbox\" checked.one-way=\"stats.controls.averagePowerOutput\"> <span class=\"lever\"></span> Week</label></div></div></div></div><div class=\"col s12 m4 l4\"><div class=\"card\"><div class=\"card-content blue darken-3 white-text\"><div class=\"row\"><div class=\"col s3\"><i class=\"mdi-maps-local-drink medium\"></i></div><div class=\"col s9\"><p class=\"card-stats-title\">Average fuel consumed</p><h4 class=\"card-stats-number\">${stats.averageFuelConsumed}</h4><p class=\"card-stats-compare\" show.bind=\"!stats.controls.averageFuelConsumed\"><span class=\"green-text text-lighten-5\">past 24 hours</span></p><p class=\"card-stats-compare\" show.bind=\"stats.controls.averageFuelConsumed\"><span class=\"green-text text-lighten-5\">past 7 days</span></p></div></div></div><div class=\"card-action\"><div class=\"switch card-switch\" click.delegate=\"toggleStats('averageFuelConsumed')\"><label class=\"black-text\">Day <input type=\"checkbox\" checked.one-way=\"stats.controls.averageFuelConsumed\"> <span class=\"lever\"></span> Week</label></div></div></div></div><div class=\"col s12 m4 l4\"><div class=\"card\"><div class=\"card-content blue darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><i class=\"mdi-action-restore medium\"></i></div><div class=\"col s9\"><p class=\"card-stats-title\">Average running hours</p><h4 class=\"card-stats-number\">8 hrs/day</h4><p class=\"card-stats-compare\"><span class=\"green-text text-lighten-5\">past 7 days</span></p></div></div></div></div></div></div></div><div class=\"row\"><div class=\"col s12 m6 l6\"><div class=\"card horizontal\"><div class=\"collapsible-header active\"><i class=\"mdi-image-remove-red-eye\"></i>Asset Status</div><div class=\"row\" style=\"text-align:center\"><div class=\"col s12 m3 l3\"><i class=\"mdi-image-flash-on medium green-text\" id=\"runningStatusIcon\"></i><p>Running</p></div><div class=\"col s12 m3 l3\"><i class=\"mdi-image-filter-tilt-shift medium red-text\"></i><p>Oil Check</p></div><div class=\"col s12 m3 l3\"><i class=\"mdi-maps-local-hospital medium green-text\"></i><p>Health Check</p></div><div class=\"col s12 m3 l3\"><i class=\"mdi-content-report medium gray-text lighten-4-text\"></i><p>Fault Report</p></div></div><div class=\"row\"><div class=\"col s12 m12 l12\"><div id=\"gauge-container\" style=\"text-align:center\"><div id=\"gauge\" style=\"display:inline-block\"></div><p>Fuel Level</p></div></div></div></div><div class=\"col s12 m6 l6\"><div class=\"card\"><div class=\"card-content indigo white-text commandBox\"><div class=\"row\"><div class=\"col s3\"><i class=\"mdi-image-flash-on medium\"></i></div><div class=\"col s9\"><p class=\"card-stats-title\">Remote Start/Stop</p><h4 class=\"card-stats-number\">${commands.remoteStartStop.status}</h4><p class=\"card-stats-compare\"><span>${commands.remoteStartStop.timestamp}</span></p></div></div></div><div class=\"card-action indigo darken-4 commandBoxBtns\"><div id=\"invoice-line\"><div class=\"row\"><div class=\"col s6 m6 l6\"><a class=\"btn medium indigo white-text\" id=\"remoteStart\" ref=\"remoteStart\" click.trigger=\"sendRemoteCommand('remoteStart')\">Start</a></div><div class=\"col s6 m6 l6\"><a class=\"btn medium indigo white-text\" id=\"remoteStop\" ref=\"remoteStop\" click.trigger=\"sendRemoteCommand('remoteStop')\">Stop</a></div></div></div></div></div></div><div class=\"col s12 m6 l6\"><div class=\"card\"><div class=\"card-content indigo white-text commandBox\"><div class=\"row\"><div class=\"col s3\"><i class=\"mdi-notification-sync-problem medium\"></i></div><div class=\"col s9\"><p class=\"card-stats-title\">Ping</p><h4 class=\"card-stats-number\">Response</h4><p class=\"card-stats-compare\"><span>${commands.ping.timestamp}</span></p></div></div></div><div class=\"card-action indigo darken-4 commandBoxBtns\"><div id=\"invoice-line\"><div class=\"row\"><div class=\"col s6 m12 l12\"><a class=\"btn medium indigo white-text\" click.trigger=\"remotePingCommand()\">Ping</a></div></div></div></div></div></div></div><div class=\"col s12 m6 l6\"><ul materialize=\"collapsible\" class=\"collapsible\" data-collapsible=\"expandable\" [materializeparams]=\"params\"><li><div class=\"collapsible-header active\"><i class=\"mdi-action-info\"></i>Asset Information</div><div class=\"collapsible-body\"><div class=\"row\"><div class=\"col s12 m12 l12\"><ul id=\"projects-collection\" class=\"collection\"><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Asset Name</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">${model.name|| '-'}</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Status</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">${model.status|| '-'}</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Total Engine Hours</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">${model.engineHours|| '-'}</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Coolant Temperature</p></div><div class=\"col s6\"><p class=\"collections-content\">${model.engineCoolantTemperature|| '-'}</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Fuel Used since last engine on</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">25 L</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Power Rating</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">50 kVA</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Oil Pressure</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">2.7 bar</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Batery Voltage</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">25.3 V</p></div></div></li></ul></div></div></div></li><li><div class=\"collapsible-header\"><i class=\"mdi-action-speaker-notes\"></i>Extra Information</div><div class=\"collapsible-body\"><div class=\"row\"><div class=\"col s12 m12 l12\"><ul id=\"projects-collection\" class=\"collection\"><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Control Panel Manufacturer</p></div><div class=\"col s6\"><p class=\"collections-content\">${model.controlPanelManufacturer}</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Year of Manufacture</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">${model.yearOfManufacture}</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Power Rating</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">${model.powerRating}</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Generator Engine Rating</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">${model.generatorEngineRating}</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Generator Frequency</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">${model.generatorFrequency}</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Tags</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\"></p><div repeat.for=\"item of model.tags\"><span class=\"task-cat cyan\">${item}</span></div><p></p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Projects</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\"></p><div repeat.for=\"item of model._projects\"><span class=\"task-cat cyan\">${item.name}</span></div><p></p></div></div></li></ul></div></div></div></li><li><div class=\"collapsible-header\"><i class=\"mdi-action-track-changes\"></i>Maintenance Information</div><div class=\"collapsible-body\"><div class=\"row\"><div class=\"col s12 m12 l12\"><ul id=\"projects-collection\" class=\"collection\"><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Last performed service</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">430</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Service Interval</p></div><div class=\"col s6\"><p class=\"collections-content\">400</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Next Service Due</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">830</p></div></div></li><li class=\"collection-item\"><div class=\"row\"><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Comments</p></div><div class=\"col s6 l6 m6\"><p class=\"collections-content\">Deployed and service is on schedule</p></div></div></li></ul></div></div></div></li></ul></div></div><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"cards\"><div class=\"card-content\"><div id=\"assetOverviewMap\" style=\"height:550px\"></div><div ref=\"legend\"></div></div></div></div></div><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"card cyan darken-1\"><div class=\"card-content waves-effect waves-block waves-light\"><div class=\"move-up\"><div><span class=\"chart-title white-text\">Power Output</span><div class=\"chart-revenue white-text\"><p class=\"chart-revenue-total\">52 kVA/Hr</p></div></div><div class=\"trending-line-chart-wrapper\"><canvas id=\"powerOutputLine\" height=\"204\" width=\"449\" style=\"width:449px;height:104px\"></canvas></div></div></div></div></div></div></div></div><div><div id=\"eventGrid\"></div></div><div><div class=\"card waves-effect waves-block waves-light\"><div class=\"collapsible-header active red darken-4 white-text\"><i class=\"mdi-alert-warning\"></i>Recent Alarms</div><div id=\"assetAlarms\" ref=\"assetAlarms\"></div></div></div></div></div></div></template>"; });
 define('text!asset-list/asset-list.html', ['module'], function(module) { module.exports = "<template><div id=\"card-stats\"><div class=\"row\"><div class=\"col s12 m6 l4\"><div class=\"card\"><div class=\"card-content blue darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><i class=\"mdi-maps-local-drink medium\"></i></div><div class=\"col s9\"><h4 class=\"card-stats-number\">783 L</h4><p class=\"card-stats-title\">Total fuel used by assets today</p></div></div></div><div class=\"card-action blue darken-4\"><div id=\"clients-bar\"><p class=\"card-stats-compare\"><span class=\"green-text text-lighten-5\"><i class=\"mdi-hardware-keyboard-arrow-up\"></i> 22% from yesterday</span></p></div></div></div></div><div class=\"col s12 m6 l4\"><div class=\"card\"><div class=\"card-content blue darken-3 white-text\"><div class=\"row\"><div class=\"col s3\"><i class=\"mdi-image-flash-on medium\"></i></div><div class=\"col s9\"><h4 class=\"card-stats-number\">12500 kVA</h4><p class=\"card-stats-title\">Total power output generated</p></div></div></div><div class=\"card-action blue darken-3\"><div id=\"clients-bar\"><p class=\"card-stats-compare\"><span class=\"green-text text-lighten-5\"><i class=\"mdi-hardware-keyboard-arrow-down\"></i> 5% from yesterday</span></p></div></div></div></div><div class=\"col s12 m6 l4\"><div class=\"card\"><div class=\"card-content blue darken-2 white-text\"><div class=\"row\"><div class=\"col s3\"><i class=\"mdi-action-schedule medium\"></i></div><div class=\"col s9\"><h4 class=\"card-stats-number\">180 Hrs</h4><p class=\"card-stats-title\">Total running hours for gensets today</p></div></div></div><div class=\"card-action blue darken-2\"><div id=\"clients-bar\"><p class=\"card-stats-compare\"><span class=\"green-text text-lighten-5\"><i class=\"mdi-hardware-keyboard-arrow-down\"></i> 45% from yesterday</span></p></div></div></div></div></div></div><div class=\"row\"><div class=\"col s12 m5 l5\"><div show.bind=\"!noEngineRatingChart\" class=\"card\"><div show.bind=\"loadingEngineRatingChart\" class=\"k-loading-mask\" style=\"width:100%;height:100%\"><span class=\"k-loading-text\">Loading...</span><div class=\"k-loading-image\"><div class=\"k-loading-color\"></div></div></div><div show.bind=\"noEngineRatingChart\" class=\"center\">No data avaliable</div><div class=\"card-content\"><canvas id=\"engineRatingChart\" ref=\"engineRatingChart\"></canvas></div></div></div><div class=\"col s12 m7 l7\"><div show.bind=\"!noCapacityChart\" class=\"card waves-effect waves-block waves-light\"><div show.bind=\"loadingCapacityChart\" class=\"k-loading-mask\" style=\"width:100%;height:100%\"><span class=\"k-loading-text\">Loading...</span><div class=\"k-loading-image\"><div class=\"k-loading-color\"></div></div></div><div class=\"card-content\"><div id=\"capacityChart\" ref=\"capacityChart\"></div></div></div></div></div><div class=\"row\"><div class=\"input-field col s12\"><div id=\"list-tags\"></div></div></div><div class=\"card\"><div id=\"assetGrid\"></div><script type=\"text/x-kendo-template\" id=\"template\"><div class=\"row\">\r\n                <div class=\"col s0 m12 l6\">\r\n                    <ul id=\"projects-collection\" class=\"collection\">\r\n                        <li class=\"collection-item avatar\">\r\n                            <span class=\"secondary-content\">\r\n                  <div class=\"row\">\r\n                      <div class=\"col s6\">\r\n                        <a class=\"btn waves-effect waves-light btn-small cyan\"  href='\\\\#asset-details/#:_id#'>View</a>\r\n                      </div>\r\n                      <div class=\"col s5\" style=\"display: #=(App.currentUser.privileges.indexOf(1) > -1)? 'hidden':'none'#\">\r\n                        <a class=\"btn btn-small waves-effect waves-light cyan darken-4\" href='\\\\#asset-admin?id=#:_id#'>Edit</a>\r\n                      </div>\r\n                    </div>\r\n                </span>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Asset Name</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.name || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Control Panel Manufacturer</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.controlPanelManufacturer || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Year of Manufacture</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.yearOfManufacture || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Power Rating</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.powerRating || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Generator Engine Rating</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.generatorEngineRating || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Generator Frequency</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#: data.generatorFrequency  || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Tags</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">\r\n                                        <!--<span class=\"task-cat cyan\">#: tags #</span> -->\r\n                                        #if(typeof data.tags != 'undefined') {# #for (var i=0,len=data.tags.length; i\r\n                                        <len;i++){ # <span class=\"task-cat cyan\">#: data.tags[i] #</span>\r\n                                            # } # # } #\r\n                                    </p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Projects</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">\r\n                                        <!--<span class=\"task-cat cyan\">#: _projects #</span> -->\r\n                                        #if(typeof data._projects != 'undefined') {# #for (var i=0,len=data._projects.length; i\r\n                                        <len;i++){ # <span class=\"task-cat cyan\">#: data._projects[i].name #</span>\r\n                                            # } # # } #\r\n                                    </p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div></script></div></template>"; });
 define('text!commands/commands.html', ['module'], function(module) { module.exports = "<template><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"card\"><blockquote>Raw Command Box</blockquote><div class=\"card-content\"><div class=\"row\"><div class=\"col s12\"><h6>Choose assets:</h6><select id=\"command-multiselect\"></select></div><div class=\"col s12\"><h6>Write Command below:</h6><textarea value.bind=\"rawCommand\" rows=\"30\" class=\"k-textbox\" style=\"width:100%\">\r\n                        </textarea></div></div></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><div show.bind=\"!update\"><button class=\"btn cyan waves-effect waves-light right\" click.delegate=\"sendCommand()\" disabled.bind=\"btnDisable\">${btnText}</button></div></div></div></div></div></div></div></template>"; });
+define('text!geofences/geofences.html', ['module'], function(module) { module.exports = "<template><div class=\"card\"><div class=\"collapsible-header active indigo darken-2 white-text\"><i class=\"mdi-maps-pin-drop\"></i>Geofences</div><div class=\"card-content\"><div id=\"geofences\"></div></div></div><div class=\"row\"><div class=\"col s12 m6 l6\"><div class=\"card\"><blockquote>File Upload</blockquote><div class=\"card-content\"><div class=\"input-field col s12\"><input class=\"input\" type=\"file\" files.bind=\"files\"> <button class=\"btn cyan waves-effect waves-light right upload-btn\" click.delegate=\"massUpload(files)\">Upload</button></div></div></div></div></div></template>"; });
 define('text!locations/locations.html', ['module'], function(module) { module.exports = "<template><div class=\"card\"><div class=\"collapsible-header active indigo darken-2 white-text\"><i class=\"mdi-maps-pin-drop\"></i>Points of Interest</div><div class=\"card-content\"><div id=\"locations\"></div></div></div><div class=\"row\"><div class=\"col s12 m6 l6\"><div class=\"card\"><blockquote>File Upload</blockquote><div class=\"card-content\"><div class=\"input-field col s12\"><input class=\"input\" type=\"file\" files.bind=\"files\"> <button class=\"btn cyan waves-effect waves-light right upload-btn\" click.delegate=\"massUpload(files)\">Upload</button></div></div></div></div></div></template>"; });
 define('text!login/forgot-password.html', ['module'], function(module) { module.exports = "<template></template>"; });
 define('text!login/login.html', ['module'], function(module) { module.exports = "<template><div id=\"particles-js\"></div><router-view></router-view></template>"; });
 define('text!login/user-password.html', ['module'], function(module) { module.exports = "<template><require from=\"./user-password.css\" as=\"scoped\"></require><div id=\"login-page\" class=\"row\"><div class=\"col s12 z-depth-4 card-panel login-card\"><form class=\"login-form\" submit.delegate=\"login()\"><div class=\"row\"><div class=\"input-field col s12 center\"><img src=\"images/logo.png\" alt=\"\" class=\"responsive-img valign\"></div></div><div class=\"row margin\"><div class=\"input-field col s12\"><i class=\"mdi-social-person-outline prefix\"></i> <input id=\"username\" type=\"text\" value.bind=\"model.loginName\" name=\"loginName\" placeholder=\"Username\" required></div></div><div class=\"row margin\"><div class=\"input-field col s12\"><i class=\"mdi-action-lock-outline prefix\"></i> <input id=\"password\" type=\"password\" value.bind=\"model.password\" name=\"password\" placeholder=\"Password\" required></div></div><div class=\"row\"><div class=\"input-field col s12 m12 l12 login-text\"><input type=\"checkbox\" id=\"remember-me\"><label for=\"remember-me\">Remember me</label></div></div><div class=\"row\"><div class=\"input-field col s12\"><button disabled.bind=\"loading\" class=\"btn btn-primary btn waves-effect waves-light col s12\">${loginBtnText}</button></div></div><div class=\"row\"><div class=\"input-field col s6 m6 l6\"></div><div class=\"input-field col s6 m6 l6\"></div></div></form></div></div></template>"; });
-define('text!geofences/geofences.html', ['module'], function(module) { module.exports = "<template><div class=\"card\"><div class=\"collapsible-header active indigo darken-2 white-text\"><i class=\"mdi-maps-pin-drop\"></i>Geofences</div><div class=\"card-content\"><div id=\"geofences\"></div></div></div><div class=\"row\"><div class=\"col s12 m6 l6\"><div class=\"card\"><blockquote>File Upload</blockquote><div class=\"card-content\"><div class=\"input-field col s12\"><input class=\"input\" type=\"file\" files.bind=\"files\"> <button class=\"btn cyan waves-effect waves-light right upload-btn\" click.delegate=\"massUpload(files)\">Upload</button></div></div></div></div></div></template>"; });
 define('text!map/map.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"loading\" class=\"loader\"><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"progress\"><div class=\"indeterminate\"></div></div></div></div></div><div show.bind=\"!loading\"><div class=\"row\"><div class=\"col s12 m8 l8\"><div class=\"card\"><div id=\"map\" style=\"height:750px\"></div><div ref=\"legend\"></div></div></div><div class=\"col s12 m4 l4\"><ul class=\"collapsible\" data-collapsible=\"accordion\"><li><div class=\"collapsible-header active\">Assets</div><div class=\"collapsible-body\"><div class=\"card\"><div class=\"card-content\"><select id=\"markerSelect\" data-placeholder=\"Select Assets...\"></select><div class=\"input-field s6\"><a class=\"btn cyan darken-1 waves-effect waves-light\" click.delegate=\"filterMarkers()\">Filter</a> <a class=\"btn cyan darken-2 waves-effect waves-light\" click.delegate=\"renderAssetMarkers()\">All</a></div><div class=\"input-field\"><input type=\"checkbox\" class=\"filled-in\" id=\"autoRefresh\" checked.bind=\"mapControl.autoRefresh\" change.delegate=\"toggleRefresher($event)\"><label for=\"autoRefresh\">Auto-Refresh</label></div><div class=\"input-field\"><input type=\"checkbox\" class=\"filled-in\" id=\"autoPan\" checked.bind=\"mapControl.autoPan\"><label for=\"autoPan\">Auto-Pan</label></div><div class=\"input-field\"><input type=\"checkbox\" class=\"filled-in\" id=\"clustering\" checked.bind=\"mapControl.autoCluster\" change.delegate=\"toggleClusterer($event)\"><label for=\"clustering\">Custering</label></div></div></div></div></li><li><div class=\"collapsible-header\">Locations</div><div class=\"collapsible-body\"><div show.bind=\"locationCreation\"><div class=\"card\"><blockquote><i>Drop a marker on the map to create a location</i></blockquote><div class=\"card-content\"><div class=\"input-field s6\"><div class=\"input-field col s12\">Name <input id=\"locationName_input\" type=\"text\" value.bind=\"newLocation.name\" required></div><div class=\"input-field col s12\">Type <input id=\"locationType_input\" ref=\"locationTypes\" value=\"1\" style=\"width:100%\"></div><div class=\"input-field col s12\">Latitude <input id=\"locationLatitude_input\" type=\"text\" value.bind=\"newLocation.latitude\" required></div><div class=\"input-field col s12\">Longitude <input id=\"locationLongitude_input\" type=\"text\" value.bind=\"newLocation.longitude\" required></div><a class=\"btn small cyan darken-1 waves-effect waves-light\" click.delegate=\"createLocation()\">Create</a> <a class=\"btn small cyan darken-2 waves-effect waves-light\" click.delegate=\"hideLocationCreationModel()\">Cancel</a></div></div></div></div><div class=\"card\"><div class=\"card-content\"><div class=\"input-field s6\"><a class=\"btn small cyan darken-1 waves-effect waves-light\" click.delegate=\"selectLocation()\">Show</a> <a class=\"btn small cyan darken-2 waves-effect waves-light\" click.delegate=\"showLocationCreationModel()\" show.bind=\"App.currentUser.privileges.indexOf(3) > -1\">Create</a></div></div><div id=\"location-tree\"></div></div></div></li><li><div class=\"collapsible-header\">Geofences</div><div class=\"collapsible-body\"><div show.bind=\"geofenceCreation\"><div class=\"card\"><div class=\"card-content\"><div class=\"input-field s6\"><div class=\"input-field col s12\">Name <input id=\"geofenceName_input\" type=\"text\" value.bind=\"newGeofence.name\" required></div><div class=\"input-field col s12\">Location<select id=\"geofence-location\" ref=\"geofenceLocation\" multiple=\"multiple\" data-placeholder=\"Search...\"></select></div><div class=\"input-field col s12\">Type <input id=\"geofenceType_input\" ref=\"geofenceTypes\" value=\"1\" style=\"width:100%\"><br><br></div><a class=\"btn small cyan darken-1 waves-effect waves-light\" click.delegate=\"createGeofence()\">Create</a> <a class=\"btn small cyan darken-2 waves-effect waves-light\" click.delegate=\"hideGeofenceCreationModel()\">Cancel</a></div></div></div></div><div class=\"card\"><div class=\"card-content\"><div class=\"input-field s6\"><a class=\"btn small cyan darken-1 waves-effect waves-light\" click.delegate=\"selectGeofence()\">Show</a> <a class=\"btn small cyan darken-2 waves-effect waves-light\" click.delegate=\"showGeofenceCreationModel()\" show.bind=\"App.currentUser.privileges.indexOf(4) > -1\">Create</a></div></div><div id=\"geofence-tree\"></div></div></div></li></ul></div></div></div></template>"; });
 define('text!overview/overview.html', ['module'], function(module) { module.exports = "<template><div id=\"error-page\"><div class=\"row\"><div class=\"col s12\"><div class=\"browser-window\"><div class=\"top-bar\"><div class=\"circles\"><div id=\"close-circle\" class=\"circle\"></div><div id=\"minimize-circle\" class=\"circle\"></div><div id=\"maximize-circle\" class=\"circle\"></div></div></div><div class=\"content\"><div class=\"row\"><div id=\"site-layout-example-top\" class=\"col s12\"><p class=\"flat-text-logo center white-text caption-uppercase\"></p></div><div id=\"site-layout-example-right\" class=\"col s12 m12 l12\"><div class=\"row center\"><h1 class=\"text-long-shadow col s12\">Hello!</h1></div><div class=\"row center\"><p class=\"center white-text col s12\">Welcome to 247HomeRescueApp Management Portal</p><p></p><p></p></div></div></div></div></div></div></div></div></template>"; });
 define('text!profile/profile.html', ['module'], function(module) { module.exports = "<template><div class=\"row\"><div class=\"col s12 m6 l6\"><div class=\"card-panel\"><h4 class=\"header2\">User Profile</h4><div class=\"row\"><form class=\"col s12\"><div class=\"row\"><div class=\"input-field col s12\">Name <input id=\"name\" type=\"text\" value.bind=\"model.name\" name=\"name\" required></div></div><div class=\"input-field col s12\">Email <input id=\"email5\" type=\"email\" value.bind=\"model.email\" name=\"email\" required></div><div class=\"input-field col s12\">Login Name <input id=\"email5\" type=\"text\" value.bind=\"model.loginName\" name=\"loginName\" disabled=\"disabled\"></div><div class=\"input-field col s12\">Password <input id=\"password6\" type=\"password\" value.bind=\"model.password\" name=\"password\" required></div><div class=\"input-field col s12\">DOB <input type=\"date\" class=\"datepicker\" value.bind=\"model.dob\" name=\"dob\" required></div><h4 class=\"header2\">Measurement Unit</h4><div class=\"input-field col s12\">Timezone <input id=\"timezone\" style=\"width:100%\"></div><div class=\"input-field col s12\">Distance <input id=\"distance\" style=\"width:100%\"></div><div class=\"input-field col s12\">Speed <input id=\"speed\" style=\"width:100%\"></div><div class=\"input-field col s12\">Volume <input id=\"volume\" style=\"width:100%\"></div><div class=\"input-field col s12\">Pressure <input id=\"pressure\" style=\"width:100%\"></div><div class=\"input-field col s12\">Temperature <input id=\"temperature\" style=\"width:100%\"></div><h4 class=\"header2\">Date &nbsp; Time</h4><div class=\"input-field col s12\">DateTime Format <input id=\"dateTime\" style=\"width:100%\"></div><div class=\"input-field col s12\">Date Format <input id=\"date\" style=\"width:100%\"></div><div class=\"input-field col s12\">Time Format <input id=\"time\" style=\"width:100%\"></div><div class=\"row\"><div class=\"input-field col s12\"><button class=\"btn cyan waves-effect waves-light right\" disabled.bind=\"loading\" click.delegate=\"submit()\">Submit</button></div></div></form></div></div></div><div class=\"col s12 m6 l6\"><div class=\"card\"><div class=\"card-content\"><h4 class=\"header2\">Avatar</h4><div class=\"input-field col s12\"><img class=\"materialboxed\" width=\"100\" height=\"100\" src=\"./uploads/users/${model.imageUrl}\"></div><div class=\"input-field col s12\"><input class=\"input\" type=\"file\" files.bind=\"images\"> <button class=\"btn cyan waves-effect waves-light right upload-btn\" click.delegate=\"uploadAvatar(images)\">Upload</button></div></div></div></div></div></template>"; });
@@ -5496,10 +5006,4 @@ define('text!project-admin/project-admin.html', ['module'], function(module) { m
 define('text!project-list/project-list.html', ['module'], function(module) { module.exports = "<template><div class=\"row\"><div class=\"input-field col s12\"><div id=\"list-tags\"></div></div></div><div class=\"card\"><div id=\"projectGrid\"></div><script type=\"text/x-kendo-template\" id=\"template\"><div class=\"row\">\r\n                <div class=\"col s0 m12 l6\">\r\n                    <ul id=\"projects-collection\" class=\"collection\">\r\n                        <li class=\"collection-item avatar\">\r\n                            <span class=\"secondary-content\">\r\n                  <div class=\"row\">\r\n                      <div class=\"col s6\">\r\n                        <a class=\"btn waves-effect waves-light btn-small cyan\"  href='\\\\#asset-list/#:_id#'>View</a>\r\n                      </div>\r\n                      <div class=\"col s5\" style=\"display: #=(App.currentUser.privileges.indexOf(2) > -1)? 'hidden':'none'#\">\r\n                        <a class=\"btn btn-small waves-effect waves-light cyan darken-4\" href='\\\\#project-admin?id=#:_id#'>Edit</a>\r\n                      </div>\r\n                    </div>\r\n                </span>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Name</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:name || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Tags</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">\r\n                                        <!--<span class=\"task-cat cyan\">#: tags #</span> -->\r\n                                        #if(typeof data.tags != 'undefined') {# #for (var i=0,len=data.tags.length; i\r\n                                        <len;i++){ # <span class=\"task-cat cyan\">#: tags[i] #</span>\r\n                                            # } # # } #\r\n                                    </p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div></script></div></template>"; });
 define('text!report-asset-utilization/report-asset-utilization.html', ['module'], function(module) { module.exports = "<template><div class=\"row\"><div class=\"input-field col s12\"><div id=\"list-tags\"></div></div></div><div class=\"card\"><div id=\"assetUtilizationGrid\" ref=\"assetUtilizationGrid\"></div></div></template>"; });
 define('text!user-admin/user-admin.html', ['module'], function(module) { module.exports = "<template><div class=\"row\"><div class=\"col s12 m8 l8\"><div class=\"card-panel\"><h4 class=\"header2\">User Profile</h4><div class=\"row\"><form class=\"col s12\"><div class=\"row\"><div class=\"input-field col s12\">Name <input id=\"name\" type=\"text\" value.bind=\"model.name\" name=\"name\" required></div><div class=\"input-field col s12\">Email <input id=\"email5\" type=\"email\" value.bind=\"model.email\" name=\"email\" required></div><div class=\"input-field col s12\">Login Name <input id=\"email5\" type=\"text\" value.bind=\"model.loginName\" name=\"loginName\" required></div><div class=\"input-field col s12\">Password <input id=\"password6\" type=\"password\" value.bind=\"model.password\" name=\"password\" required></div><div class=\"input-field col s12\">DOB <input type=\"date\" class=\"datepicker\" value.bind=\"model.dob\" name=\"dob\" required></div><h4 class=\"header2\">Measurement Unit</h4><div class=\"input-field col s12\">Timezone <input id=\"timezone\" style=\"width:100%\"></div><div class=\"input-field col s12\">Distance <input id=\"distance\" style=\"width:100%\"></div><div class=\"input-field col s12\">Speed <input id=\"speed\" style=\"width:100%\"></div><div class=\"input-field col s12\">Volume <input id=\"volume\" style=\"width:100%\"></div><div class=\"input-field col s12\">Pressure <input id=\"pressure\" style=\"width:100%\"></div></div></form></div></div></div><div class=\"col s12 m4 l4\" show.bind=\"update\"><div class=\"card\"><div class=\"card-content\"><h4 class=\"header2\">Avatar</h4><div class=\"input-field col s12\"><img class=\"materialboxed\" width=\"100\" height=\"100\" src=\"./uploads/users/${model.imageUrl}\"></div><div class=\"input-field col s12\"><input class=\"input\" type=\"file\" files.bind=\"images\"> <button class=\"btn cyan waves-effect waves-light right upload-btn\" click.delegate=\"uploadAvatar(images)\">Upload</button></div></div></div></div><div class=\"col s12 m4 l4\"><div class=\"card\"><div class=\"card-content\"><h4 class=\"header2\">User Privileges</h4><div class=\"input-field col s12\"><ul repeat.for=\"role of possiblePrivileges\"><p><input type=\"checkbox\" id=\"${role.id}\" model.bind=\"role.id\" checked.bind=\"model.privileges\"><label for=\"${role.id}\">${role.name}</label></p></ul></div></div></div></div><div class=\"row\"><div class=\"input-field col s12\"><div class=\"admin-btns\"><div show.bind=\"!update\"><button class=\"btn cyan waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Create</button></div><div show.bind=\"update\"><button class=\"btn blue waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Update</button> <button class=\"btn red waves-effect waves-light\" click.delegate=\"delete()\">Delete</button></div></div></div></div></div></template>"; });
-define('text!asset-admin - Copy/asset-admin.css', ['module'], function(module) { module.exports = ""; });
-define('text!asset-admin - Copy/asset-admin.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"loading\" class=\"loader\"><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"progress\"><div class=\"indeterminate\"></div></div></div></div></div><div show.bind=\"!loading\"><div class=\"row\"><div class=\"col s12 m7 l7\"><div class=\"card-panel\"><h4 class=\"header2\">Asset Attributes</h4><div class=\"row\"><form class=\"col s12\"><div class=\"row\"><div class=\"input-field col s12\">Asset Name <input id=\"asset_name\" type=\"text\" value.bind=\"model.name\" name=\"name\" required></div><div class=\"input-field col s12\">Sensor <input id=\"sensor_name\" type=\"text\" value.bind=\"model.sensor\" name=\"sensor\" required></div><div class=\"input-field col s12\">Interface Type <input id=\"interfaceType\" ref=\"interfaceType\" value=\"1\" style=\"width:100%\"></div><div class=\"input-field col s12\">Status <input id=\"status\" ref=\"status\" value=\"1\" style=\"width:100%\"></div></div><div class=\"row\"><div class=\"input-field col s12\">Model <input id=\"modelName_name\" type=\"text\" value.bind=\"model.model\" name=\"model\" required></div><div class=\"input-field col s12\">Manufacturer <input id=\"Manufacturer_input\" type=\"text\" value.bind=\"model.manufacturer\" name=\"manufacturer\" required></div></div><div class=\"row\"><div class=\"input-field col s12\">Control-Panel Manufacturer <input id=\"controlPanelManufacturer_input\" type=\"text\" value.bind=\"model.controlPanelManufacturer\" name=\"controlPanelManufacturer\" required></div><div class=\"input-field col s12\">Year of Manufacture <input id=\"last_name\" type=\"number\" value.bind=\"model.yearOfManufacture\" name=\"yearOfManufacture\" required></div></div><h4 class=\"header2\">Operational Attributes</h4><div class=\"row\"><div class=\"input-field col s12\">Power Rating <input id=\"powerRating_input\" type=\"number\" value.bind=\"model.powerRating\" name=\"powerRating\" required></div><div class=\"input-field col s12\">Generator Capacity <input id=\"generatorCapacity_input\" type=\"number\" value.bind=\"model.generatorCapacity\" name=\"generatorCapacity\" required></div><div class=\"input-field col s12\">Generator Engine Rating <input id=\"generatorEngineRating\" ref=\"generatorEngineRating\" value=\"1\" style=\"width:100%\"></div></div><div class=\"row\"><div class=\"input-field col s12\">Generator Frequency<br><input id=\"generatorFrequency\" ref=\"generatorFrequency\" value=\"1\" style=\"width:100%\"></div><div class=\"input-field col s6\">Power Factor <input id=\"powerFactor_input\" type=\"number\" value.bind=\"model.powerFactor\" name=\"powerFactor\" required></div></div><div class=\"row\"><div class=\"input-field col s12\"><div id=\"admin-tags\"></div></div></div></form></div></div></div><div class=\"col s12 m5 l5\"><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Map Position Status</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.hasMapPosition.enabled\" disabled=\"disabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div></div><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Engine Status</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.engineStatus.enabled\" disabled=\"disabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div></div><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">System Odometer</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.systemOdometer.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action\"><div class=\"row\"><div class=\"input-field col s12\">Offset (hrs) <input id=\"systemOdometerOffset\" type=\"number\" value.bind=\"model.features.systemOdometer.offset\" name=\"systemOdometerOffset\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Non Report</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.nonReport.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (min) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.nonReport.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Major Service</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.majorService.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (hrs) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.majorService.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Minor Service</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.minorService.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (hrs) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.minorService.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Supply Voltage</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highSupplyVoltage.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"highSupplyVoltageThreshold\" type=\"number\" value.bind=\"model.features.highSupplyVoltage.threshold\" name=\"highSupplyVoltageThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Low Supply Voltage</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.lowSupplyVoltage.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"lowSupplyVoltageThreshold\" type=\"number\" value.bind=\"model.features.lowSupplyVoltage.threshold\" name=\"lowSupplyVoltageThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Power Output</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highPowerOutput.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"highPowerOutputThreshold\" type=\"number\" value.bind=\"model.features.highPowerOutput.threshold\" name=\"highPowerOutputThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Low Power Output</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.lowPowerOutput.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"lowPowerOutputThreshold\" type=\"number\" value.bind=\"model.features.lowPowerOutput.threshold\" name=\"lowPowerOutputThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Coolant Temperature</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highCoolantTemperature.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"highCoolantTemperatureThreshold\" type=\"number\" value.bind=\"model.features.highCoolantTemperature.threshold\" name=\"highCoolantTemperatureThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Frequency</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.frequency.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"frequencyThreshold\" type=\"number\" value.bind=\"model.features.frequency.highThreshold\" name=\"frequencyThreshold\" min=\"10\"></div><div class=\"input-field col s12\">Low Threshold <input id=\"frequencyThreshold\" type=\"number\" value.bind=\"model.features.frequency.lowThreshold\" name=\"frequencyThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Oil Pressure</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.oilPressure.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold <input id=\"oilPressureThreshold\" type=\"number\" value.bind=\"model.features.lowOilPressure.threshold\" name=\"oilPressureThreshold\" min=\"10\"></div></div></div></div></div></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><div show.bind=\"!update\"><button class=\"btn cyan waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Create</button></div><div show.bind=\"update\"><button class=\"btn blue waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Update</button> <button class=\"btn red waves-effect waves-light\" click.delegate=\"delete()\">Delete</button></div></div></div></div></div></template>"; });
-define('text!ad-admin/asset-admin.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"loading\" class=\"loader\"><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"progress\"><div class=\"indeterminate\"></div></div></div></div></div><div show.bind=\"!loading\"><div class=\"row\"><div class=\"col s12 m7 l7\"><div class=\"card-panel\"><h4 class=\"header2\">Asset Attributes</h4><div class=\"row\"><form class=\"col s12\"><div class=\"row\"><div class=\"input-field col s12\">Asset Name <input id=\"asset_name\" type=\"text\" value.bind=\"model.name\" name=\"name\" required></div><div class=\"input-field col s12\">Sensor <input id=\"sensor_name\" type=\"text\" value.bind=\"model.sensor\" name=\"sensor\" required></div><div class=\"input-field col s12\">Interface Type <input id=\"interfaceType\" ref=\"interfaceType\" value=\"1\" style=\"width:100%\"></div><div class=\"input-field col s12\">Status <input id=\"status\" ref=\"status\" value=\"1\" style=\"width:100%\"></div></div><div class=\"row\"><div class=\"input-field col s12\">Model <input id=\"modelName_name\" type=\"text\" value.bind=\"model.model\" name=\"model\" required></div><div class=\"input-field col s12\">Manufacturer <input id=\"Manufacturer_input\" type=\"text\" value.bind=\"model.manufacturer\" name=\"manufacturer\" required></div></div><div class=\"row\"><div class=\"input-field col s12\">Control-Panel Manufacturer <input id=\"controlPanelManufacturer_input\" type=\"text\" value.bind=\"model.controlPanelManufacturer\" name=\"controlPanelManufacturer\" required></div><div class=\"input-field col s12\">Year of Manufacture <input id=\"last_name\" type=\"number\" value.bind=\"model.yearOfManufacture\" name=\"yearOfManufacture\" required></div></div><h4 class=\"header2\">Operational Attributes</h4><div class=\"row\"><div class=\"input-field col s12\">Power Rating <input id=\"powerRating_input\" type=\"number\" value.bind=\"model.powerRating\" name=\"powerRating\" required></div><div class=\"input-field col s12\">Generator Capacity <input id=\"generatorCapacity_input\" type=\"number\" value.bind=\"model.generatorCapacity\" name=\"generatorCapacity\" required></div><div class=\"input-field col s12\">Generator Engine Rating <input id=\"generatorEngineRating\" ref=\"generatorEngineRating\" value=\"1\" style=\"width:100%\"></div></div><div class=\"row\"><div class=\"input-field col s12\">Generator Frequency<br><input id=\"generatorFrequency\" ref=\"generatorFrequency\" value=\"1\" style=\"width:100%\"></div><div class=\"input-field col s6\">Power Factor <input id=\"powerFactor_input\" type=\"number\" value.bind=\"model.powerFactor\" name=\"powerFactor\" required></div></div><div class=\"row\"><div class=\"input-field col s12\"><div id=\"admin-tags\"></div></div></div></form></div></div></div><div class=\"col s12 m5 l5\"><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Map Position Status</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.hasMapPosition.enabled\" disabled=\"disabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div></div><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Engine Status</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.engineStatus.enabled\" disabled=\"disabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div></div><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">System Odometer</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.systemOdometer.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action\"><div class=\"row\"><div class=\"input-field col s12\">Offset (hrs) <input id=\"systemOdometerOffset\" type=\"number\" value.bind=\"model.features.systemOdometer.offset\" name=\"systemOdometerOffset\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Non Report</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.nonReport.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (min) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.nonReport.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Major Service</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.majorService.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (hrs) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.majorService.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Minor Service</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.minorService.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (hrs) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.minorService.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Supply Voltage</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highSupplyVoltage.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"highSupplyVoltageThreshold\" type=\"number\" value.bind=\"model.features.highSupplyVoltage.threshold\" name=\"highSupplyVoltageThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Low Supply Voltage</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.lowSupplyVoltage.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"lowSupplyVoltageThreshold\" type=\"number\" value.bind=\"model.features.lowSupplyVoltage.threshold\" name=\"lowSupplyVoltageThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Power Output</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highPowerOutput.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"highPowerOutputThreshold\" type=\"number\" value.bind=\"model.features.highPowerOutput.threshold\" name=\"highPowerOutputThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Low Power Output</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.lowPowerOutput.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"lowPowerOutputThreshold\" type=\"number\" value.bind=\"model.features.lowPowerOutput.threshold\" name=\"lowPowerOutputThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Coolant Temperature</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highCoolantTemperature.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"highCoolantTemperatureThreshold\" type=\"number\" value.bind=\"model.features.highCoolantTemperature.threshold\" name=\"highCoolantTemperatureThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Frequency</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.frequency.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"frequencyThreshold\" type=\"number\" value.bind=\"model.features.frequency.highThreshold\" name=\"frequencyThreshold\" min=\"10\"></div><div class=\"input-field col s12\">Low Threshold <input id=\"frequencyThreshold\" type=\"number\" value.bind=\"model.features.frequency.lowThreshold\" name=\"frequencyThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Oil Pressure</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.oilPressure.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold <input id=\"oilPressureThreshold\" type=\"number\" value.bind=\"model.features.lowOilPressure.threshold\" name=\"oilPressureThreshold\" min=\"10\"></div></div></div></div></div></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><div show.bind=\"!update\"><button class=\"btn cyan waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Create</button></div><div show.bind=\"update\"><button class=\"btn blue waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Update</button> <button class=\"btn red waves-effect waves-light\" click.delegate=\"delete()\">Delete</button></div></div></div></div></div></template>"; });
-define('text!ad-admin/asset-admin.css', ['module'], function(module) { module.exports = ""; });
-define('text!ad-admin/ad-admin.css', ['module'], function(module) { module.exports = ""; });
-define('text!ad-admin/ad-admin.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"loading\" class=\"loader\"><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"progress\"><div class=\"indeterminate\"></div></div></div></div></div><div show.bind=\"!loading\"><div class=\"row\"><div class=\"col s12 m7 l7\"><div class=\"card-panel\"><h4 class=\"header2\">Asset Attributes</h4><div class=\"row\"><form class=\"col s12\"><div class=\"row\"><div class=\"input-field col s12\">Asset Name <input id=\"asset_name\" type=\"text\" value.bind=\"model.name\" name=\"name\" required></div><div class=\"input-field col s12\">Sensor <input id=\"sensor_name\" type=\"text\" value.bind=\"model.sensor\" name=\"sensor\" required></div><div class=\"input-field col s12\">Interface Type <input id=\"interfaceType\" ref=\"interfaceType\" value=\"1\" style=\"width:100%\"></div><div class=\"input-field col s12\">Status <input id=\"status\" ref=\"status\" value=\"1\" style=\"width:100%\"></div></div><div class=\"row\"><div class=\"input-field col s12\">Model <input id=\"modelName_name\" type=\"text\" value.bind=\"model.model\" name=\"model\" required></div><div class=\"input-field col s12\">Manufacturer <input id=\"Manufacturer_input\" type=\"text\" value.bind=\"model.manufacturer\" name=\"manufacturer\" required></div></div><div class=\"row\"><div class=\"input-field col s12\">Control-Panel Manufacturer <input id=\"controlPanelManufacturer_input\" type=\"text\" value.bind=\"model.controlPanelManufacturer\" name=\"controlPanelManufacturer\" required></div><div class=\"input-field col s12\">Year of Manufacture <input id=\"last_name\" type=\"number\" value.bind=\"model.yearOfManufacture\" name=\"yearOfManufacture\" required></div></div><h4 class=\"header2\">Operational Attributes</h4><div class=\"row\"><div class=\"input-field col s12\">Power Rating <input id=\"powerRating_input\" type=\"number\" value.bind=\"model.powerRating\" name=\"powerRating\" required></div><div class=\"input-field col s12\">Generator Capacity <input id=\"generatorCapacity_input\" type=\"number\" value.bind=\"model.generatorCapacity\" name=\"generatorCapacity\" required></div><div class=\"input-field col s12\">Generator Engine Rating <input id=\"generatorEngineRating\" ref=\"generatorEngineRating\" value=\"1\" style=\"width:100%\"></div></div><div class=\"row\"><div class=\"input-field col s12\">Generator Frequency<br><input id=\"generatorFrequency\" ref=\"generatorFrequency\" value=\"1\" style=\"width:100%\"></div><div class=\"input-field col s6\">Power Factor <input id=\"powerFactor_input\" type=\"number\" value.bind=\"model.powerFactor\" name=\"powerFactor\" required></div></div><div class=\"row\"><div class=\"input-field col s12\"><div id=\"admin-tags\"></div></div></div></form></div></div></div><div class=\"col s12 m5 l5\"><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Map Position Status</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.hasMapPosition.enabled\" disabled=\"disabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div></div><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Engine Status</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.engineStatus.enabled\" disabled=\"disabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div></div><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">System Odometer</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.systemOdometer.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action\"><div class=\"row\"><div class=\"input-field col s12\">Offset (hrs) <input id=\"systemOdometerOffset\" type=\"number\" value.bind=\"model.features.systemOdometer.offset\" name=\"systemOdometerOffset\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Non Report</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.nonReport.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (min) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.nonReport.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Major Service</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.majorService.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (hrs) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.majorService.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Minor Service</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.minorService.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (hrs) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.minorService.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Supply Voltage</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highSupplyVoltage.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"highSupplyVoltageThreshold\" type=\"number\" value.bind=\"model.features.highSupplyVoltage.threshold\" name=\"highSupplyVoltageThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Low Supply Voltage</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.lowSupplyVoltage.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"lowSupplyVoltageThreshold\" type=\"number\" value.bind=\"model.features.lowSupplyVoltage.threshold\" name=\"lowSupplyVoltageThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Power Output</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highPowerOutput.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"highPowerOutputThreshold\" type=\"number\" value.bind=\"model.features.highPowerOutput.threshold\" name=\"highPowerOutputThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Low Power Output</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.lowPowerOutput.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"lowPowerOutputThreshold\" type=\"number\" value.bind=\"model.features.lowPowerOutput.threshold\" name=\"lowPowerOutputThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Coolant Temperature</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highCoolantTemperature.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"highCoolantTemperatureThreshold\" type=\"number\" value.bind=\"model.features.highCoolantTemperature.threshold\" name=\"highCoolantTemperatureThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Frequency</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.frequency.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"frequencyThreshold\" type=\"number\" value.bind=\"model.features.frequency.highThreshold\" name=\"frequencyThreshold\" min=\"10\"></div><div class=\"input-field col s12\">Low Threshold <input id=\"frequencyThreshold\" type=\"number\" value.bind=\"model.features.frequency.lowThreshold\" name=\"frequencyThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Oil Pressure</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.oilPressure.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold <input id=\"oilPressureThreshold\" type=\"number\" value.bind=\"model.features.lowOilPressure.threshold\" name=\"oilPressureThreshold\" min=\"10\"></div></div></div></div></div></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><div show.bind=\"!update\"><button class=\"btn cyan waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Create</button></div><div show.bind=\"update\"><button class=\"btn blue waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Update</button> <button class=\"btn red waves-effect waves-light\" click.delegate=\"delete()\">Delete</button></div></div></div></div></div></template>"; });
 //# sourceMappingURL=app-bundle.js.map

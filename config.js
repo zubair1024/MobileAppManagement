@@ -1,5 +1,5 @@
 module.exports = {
-  dbUrl: "mongodb://razrlab:gameofthrones@ds060009.mlab.com:60009/communicationdb",
+  dbUrl: "mongodb://razrlab:gameofthrones@ds241055.mlab.com:41055/247",
   // dbUrl: "mongodb://razrlab:gameofthrones@ds143542.mlab.com:43542/razrgen",
   listener: {
     ip: function () {

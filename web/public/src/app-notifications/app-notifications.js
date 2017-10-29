@@ -46,12 +46,12 @@ export class AppNotifications {
       suppressScrollX: true
     });
 
-    this.getNotifications();
+    // this.getNotifications();
 
-    //get user notifications
-    setInterval(() => {
-      this.getNotifications();
-    }, 30000);
+    // //get user notifications
+    // setInterval(() => {
+    //   this.getNotifications();
+    // }, 30000);
   }
 
   /**

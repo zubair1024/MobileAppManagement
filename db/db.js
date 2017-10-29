@@ -95,26 +95,8 @@ module.exports = {
   //Load Models
   loadModels: function () {
     this.User = require("./models/User");
-    this.RawMessageEvent = require("./models/RawMessageEvent");
-    this.SensorMessageEvent = require("./models/SensorMessageEvent");
-    this.CommandMapping = require("./models/CommandMapping");
-    this.CommandEvent = require("./models/CommandEvent");
-    this.ConnectedDevice = require("./models/ConnectedDevice");
-    this.Asset = require("./models/Asset");
-    this.Project = require("./models/Project");
-    this.Location = require("./models/Location");
-    this.Geofence = require("./models/Geofence");
-    this.Alarm = require("./models/Alarm");
-    this.AlarmEvent = require("./models/AlarmEvent");
     this.Ad = require("./models/Ad");
-
-    //master ETL jobs
-    // this.ETLCustomer = require("./models/etl/_ETLCustomer");
-    // this.ETLProject = require("./models/etl/_ETLProject");
-    //ETL Jobs
-    // this.LiveOperationalStatistic = require("./models/etl/LiveOperationalStatistic");
-    // this.ETLAssetUtilization = require("./models/etl/ETLAssetUtilization");
-    // this.ETLProjectUtilization = require("./models/etl/ETLProjectUtilization");
+    this.Configuration = require("./models/Configuration");
   },
 
   //logger

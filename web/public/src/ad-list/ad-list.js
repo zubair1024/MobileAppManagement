@@ -62,25 +62,6 @@ export class AdList {
     let me = this;
     //render all assets grid
     me.renderGrid();
-
-    //render engine rating pie
-    // me.renderEngineRatingChart();
-
-    //render genset capacity graph
-    // me.renderCapacityChart();
-  }
-
-  /**
-     * Get the asset model
-     * @param {*} id Asset _id
-     */
-  getProject(id, callback) {
-    this.http.client.get(`/project/id/${id}`).then(res => {
-      if (res && res.data) {
-        this.project = res.data[0];
-        callback();
-      }
-    });
   }
 
   /**
@@ -95,7 +76,7 @@ export class AdList {
         detailTemplate: kendo.template($('#template').html()),
         columns: [
           {
-            template: "<a href='\\#asset-details/#:_id#'>#:name#</a>",
+            template: "<a href='\\#ad-details/#:_id#'>#:name#</a>",
             field: 'name',
             title: 'Asset Name',
             width: 150,
@@ -151,7 +132,7 @@ export class AdList {
     //check for asset admin access(1)
     if (App.currentUser.privileges.indexOf(1) > -1) {
       config.toolbar.push({
-        template: '<a class="k-button" href="\\#/asset-admin"><span class="k-icon k-i-plus-outline"></span> Create New</a>'
+        template: '<a class="k-button" href="\\#/ad-admin"><span class="k-icon k-i-plus-outline"></span> Create New</a>'
       });
     }
 
@@ -167,7 +148,7 @@ export class AdList {
     }
 
     //set the request url
-    config.dataSource.transport.read.url = App.config.apiUrl + '/asset';
+    config.dataSource.transport.read.url = App.config.apiUrl + '/ad';
     //get project filter
     if (this.project._id && this.project.assets) {
       config.dataSource.filter = $.extend(config.dataSource.filter, {
@@ -178,118 +159,5 @@ export class AdList {
     }
 
     this.grid = $('#assetGrid').kendoGrid(config);
-  }
-  /**
-   * Render Engine Rating Pie Chart
-   */
-  renderEngineRatingChart() {
-    let me = this;
-    let url = this.project._id
-      ? `/statistics/generatorenginerating/${this.project._id}`
-      : '/statistics/generatorenginerating/';
-    //add mask
-    this.loadingEngineRatingChart = true;
-    this.http.client.get(url).then(res => {
-      me.noEngineRatingChart = false;
-      //remove mask
-      me.loadingEngineRatingChart = false;
-      if (res && res.data.length && res.data[0].generatorEngineRating) {
-        let engineRating = res.data[0].generatorEngineRating;
-        me.cards.engineRatingChart = new Chart(me.engineRatingChart, {
-          type: 'pie',
-          data: {
-            labels: ['Prime', 'Continous', 'Stand-by'],
-            datasets: [
-              {
-                data: [
-                  engineRating.prime,
-                  engineRating.continuous,
-                  engineRating.standby
-                ],
-                backgroundColor: ['#00838f', '#00acc1', '#b2ebf2', '#e0f7fa'],
-                hoverBackgroundColor: ['#00838f', '#00acc1', '#b2ebf2', '#e0f7fa']
-              }
-            ]
-          }
-        });
-      } else {
-        //hide element
-        me.noEngineRatingChart = true;
-      }
-    });
-  }
-  /**
-   * Render Capcity Bar Chart
-   */
-  renderCapacityChart() {
-    let me = this;
-    let url = this.project._id
-      ? `/statistics/generatorcapacity/${this.project._id}`
-      : '/statistics/generatorcapacity/';
-    //add mask
-    this.loadingCapacityChart = true;
-    this.http.client.get(url).then(res => {
-      //remove mask
-      me.loadingCapacityChart = false;
-      if (res && res.data.length && res.data[0].generatorCapacity) {
-        me.noCapacityChart = false;
-        let data = [];
-        let categories = [];
-        let generatorCapacity = res.data[0].generatorCapacity;
-        for (let rating in generatorCapacity) {
-          data.push(generatorCapacity[rating]);
-          categories.push(rating);
-        }
-        //render chart
-        $(this.capacityChart).kendoChart({
-          title: {
-            text: 'Genset Capacity Statistics'
-          },
-          theme: 'material',
-          legend: {
-            position: 'top'
-          },
-          seriesDefaults: {
-            type: 'column'
-          },
-          seriesColors: ['#00838f', '#0097a7', '#00acc1', '#00bcd4', '#26c6da', '#4dd0e1', '#80deea', '#b2ebf2', '#e0f7fa'],
-          series: [
-            {
-              name: 'Generators',
-              data: data
-            }
-          ],
-          valueAxis: {
-            labels: {
-              format: '{0}'
-            },
-            line: {
-              visible: true
-            },
-            axisCrossingValue: 0
-          },
-          categoryAxis: {
-            categories: categories,
-            line: {
-              visible: false
-            }
-
-            // labels: {
-
-            //     padding: { top: 135 }
-
-            // }
-          },
-          tooltip: {
-            visible: true,
-            format: '{0} kVA',
-            template: '#= series.name #: #= value #'
-          }
-        });
-      } else {
-        //hide element
-        me.noCapacityChart = true;
-      }
-    });
   }
 }
