@@ -165,7 +165,7 @@ router
   .get("/sensor/:id", isAuthenticated, function (req, res) {
     if (req.params) {
       // get asset by assetName
-      db.Asset.find({ sensor: req.params.id }, function (err, asset) {
+      db.Ad.find({ sensor: req.params.id }, function (err, asset) {
         if (err) {
           throw err;
         } else {
@@ -179,7 +179,7 @@ router
      */
   .put("/sensor/:id", isAuthenticated, function (req, res) {
     if (req.params) {
-      db.Asset.findOneAndUpdate({ sensor: req.params.id }, req.body, function (
+      db.Ad.findOneAndUpdate({ sensor: req.params.id }, req.body, function (
         err,
         asset
       ) {
@@ -204,9 +204,8 @@ router
   .get("/id/:id", isAuthenticated, function (req, res) {
     if (req.params) {
       // get asset by id
-      db.Asset
+      db.Ad
         .find({ _id: req.params.id })
-        .populate("_projects")
         .exec(function (err, asset) {
           if (err) {
             throw err;
@@ -221,7 +220,7 @@ router
      */
   .put("/id/:id", isAuthenticated, function (req, res) {
     if (req.params) {
-      db.Asset.findOneAndUpdate({ _id: req.params.id }, req.body, function (
+      db.Ad.findOneAndUpdate({ _id: req.params.id }, req.body, function (
         err,
         asset
       ) {
@@ -246,7 +245,7 @@ router
   .delete("/id/:id", isAuthenticated, function (req, res) {
     if (req.params) {
       //update the pState to 6 for removal
-      db.Asset.findOneAndUpdate({ _id: req.params.id }, { pState: 6 }, function (
+      db.Ad.findOneAndUpdate({ _id: req.params.id }, { pState: 6 }, function (
         err,
         asset
       ) {
@@ -271,7 +270,7 @@ router
   .get("name/:assetName", isAuthenticated, function (req, res) {
     if (req.params) {
       // get asset by assetName
-      db.Asset.find({ name: req.params.name }, function (err, asset) {
+      db.Ad.find({ name: req.params.name }, function (err, asset) {
         if (err) {
           throw err;
         } else {
@@ -285,7 +284,7 @@ router
      */
   .put("name/:assetName", isAuthenticated, function (req, res) {
     if (req.params) {
-      db.Asset.findOneAndUpdate({ name: req.params.name }, req.body, function (
+      db.Ad.findOneAndUpdate({ name: req.params.name }, req.body, function (
         err,
         asset
       ) {
@@ -309,7 +308,7 @@ router
      */
   .delete("name/:assetName", isAuthenticated, function (req, res) {
     if (req.params) {
-      db.Asset.findOneAndRemove({ name: req.params.name }, function (
+      db.Ad.findOneAndRemove({ name: req.params.name }, function (
         err,
         asset
       ) {
@@ -340,7 +339,7 @@ router
 
       //check file type
       if (file.mimetype == "image/jpeg" || file.mimetype == "image/png") {
-        db.Asset.findOneAndUpdate(
+        db.Ad.findOneAndUpdate(
           { _id: req.body._id },
           { imageUrl: file.originalname },
           function (err, asset) {

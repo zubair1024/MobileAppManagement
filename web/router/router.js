@@ -2,7 +2,8 @@
 
 const test = require("./routes/test"),
   user = require("./routes/user"),
-  ad = require("./routes/ad");
+  ad = require("./routes/ad"),
+  misc = require("./routes/misc");
 
 //load test routes
 app.use("/test", test);
@@ -24,7 +25,7 @@ app.use("/ad", ad);
 //load map routes
 // app.use("/map", map);
 //load misc routes
-// app.use("/misc", misc);
+app.use("/misc", misc);
 //load map routes
 // app.use("/location", location);
 // app.use("/geofence", geofence);

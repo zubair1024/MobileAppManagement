@@ -76,9 +76,9 @@ export class AdList {
         detailTemplate: kendo.template($('#template').html()),
         columns: [
           {
-            template: "<a href='\\#ad-details/#:_id#'>#:name#</a>",
+            template: "<a href='\\#ad-admin/#:_id#'>#:name#</a>",
             field: 'name',
-            title: 'Asset Name',
+            title: 'Ad Name',
             width: 150,
             filterable: {
               cell: {
@@ -87,36 +87,9 @@ export class AdList {
             }
           },
           {
-            field: 'model',
-            title: 'Model Name',
-            filterable: {
-              cell: {
-                operator: 'contains'
-              }
-            }
-          },
-          {
-            field: 'manufacturer',
-            title: 'Manufacturer',
-            filterable: {
-              cell: {
-                operator: 'contains'
-              }
-            }
-          },
-          {
-            field: 'controlPanelManufacturer',
-            title: 'Control Panel Manufacturer',
-            filterable: {
-              cell: {
-                operator: 'contains'
-              }
-            }
-          },
-          {
-            field: 'updated_at',
+            field: 'updatedTime',
             title: 'Modified Time',
-            template: '#: App.util.format.dateTime(data.updated_at, App.currentUser.dateTimeFormat) #',
+            template: '#: App.util.format.dateTime(data.updatedTime, App.currentUser.dateTimeFormat) #',
             filterable: {
               extra: 'true',
               messages: {

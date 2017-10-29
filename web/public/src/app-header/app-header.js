@@ -41,17 +41,17 @@ export class AppHeader
           }
         }
       },
-      template: '# if(data.objectType=="Asset"){ # <i class="mdi-image-flash-on tiny"></i> # } else {# <i class="mdi-communication-business tiny"></i> #}# #: data.name #',
+      template: '# if(data.objectType=="Ad"){ # <i class="mdi-image-flash-on tiny"></i> # } else {# <i class="mdi-communication-business tiny"></i> #}# #: data.name #',
       select: function(e) {
         //navigate to object
         if (e.dataItem.objectType) {
           console.log(e.dataItem.objectType);
           switch (e.dataItem.objectType) {
           case 'Asset':
-            me.router.navigateToRoute('asset-details', {id: e.dataItem._id});
+            me.router.navigateToRoute('ad-admin', {id: e.dataItem._id});
             break;
           case 'Project':
-            me.router.navigateToRoute('asset-list/:id', {id: e.dataItem._id});
+            me.router.navigateToRoute('ad-list/:id', {id: e.dataItem._id});
             break;
           default:
           //do nothing

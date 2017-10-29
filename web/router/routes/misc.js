@@ -36,7 +36,7 @@ router
       }
 
       //get assets
-      db.Asset
+      db.Ad
         .find(obj.filter)
         .select("_id name objectType")
         .sort({ createdTime: -1 })
