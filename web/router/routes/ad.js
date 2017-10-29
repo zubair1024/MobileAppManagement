@@ -8,21 +8,34 @@ const express = require("express"),
   paginator = require("../../utils/pagination-helper"),
   extend = require("util")._extend;
 
-/**
- * Multer file upload setup
- */
-var multer = require("multer");
-var path = require("path");
 
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "public/uploads/assets/");
-  },
+/**
+* Multer file upload setup
+*/
+const multer = require("multer"),
+  path = require("path");
+
+//Cloudinary API setup
+var cloudinaryStorage = require('multer-storage-cloudinary'),
+  cloudinary = require('cloudinary');
+cloudinary.config({
+  cloud_name: 'razrlab',
+  api_key: '314481637586179',
+  api_secret: 'fL6Tui193qdF5KO6DNluuyhCJpI'
+});
+const storage = cloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: 'folder-name',
+  cloud_name: 'razrlab',
+  api_key: '314481637586179',
+  api_secret: 'fL6Tui193qdF5KO6DNluuyhCJpI',
+  allowedFormats: ['jpg', 'png'],
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    cb(undefined, file.originalname);
   }
 });
-var upload = multer({ storage: storage });
+const upload = multer({ storage: storage });
+
 
 //user routes
 router
@@ -86,33 +99,66 @@ router
   /**
      * Creating a new asset
      */
-  .post("/", isAuthenticated, function (req, res) {
-    if (req) {
-      //TODO some validation and transformation?
-      //perform some sanity check
-      if (req.body.name) {
-        new db.Ad(req.body).save(function (err) {
-          if (err) {
-            res.status(500).send({
-              status: "error",
-              error: "There was an error saving the ad."
-            });
-            throw err;
-          } else {
-            res.status(200).send({
-              status: "success",
-              message: "Ad saved successfully."
-            });
-          }
-        });
-      } else {
-        res.status(500).send({
-          status: "error",
-          message: "Insufficient information was provided."
-        });
-      }
+  // .post("/", isAuthenticated, function (req, res) {
+  //   if (req) {
+  //     //TODO some validation and transformation?
+  //     //perform some sanity check
+  //     if (req.body.name) {
+  //       new db.Ad(req.body).save(function (err) {
+  //         if (err) {
+  //           res.status(500).send({
+  //             status: "error",
+  //             error: "There was an error saving the ad."
+  //           });
+  //           throw err;
+  //         } else {
+  //           res.status(200).send({
+  //             status: "success",
+  //             message: "Ad saved successfully."
+  //           });
+  //         }
+  //       });
+  //     } else {
+  //       res.status(500).send({
+  //         status: "error",
+  //         message: "Insufficient information was provided."
+  //       });
+  //     }
+  //   }
+  // })
+
+  .post('/', upload.any(), function (req, res) {
+    console.log('POST AD');
+    console.log(req.body);
+    let ad = JSON.parse(req.body.model);
+    ad.images = [];
+    if (req.files && req.files.length) {
+        for (let i = 0; i < req.files.length; i++) {
+            //check if it is the title deed
+            if (req.files[i].url && req.files[i].url.match('deed')) {
+              ad.imageUrl = req.files[i].url;
+            } else {
+              ad.images.push(req.files[i].url);
+            }
+        }
     }
-  })
+    console.log(ad);
+    db.Ad.findOne({
+        "name": ad.name
+    },function (err, doc) {
+        if(!doc){
+            console.log('its a new add');
+            db.Ad(ad).save(function(err, doc){
+                return res.send("succesfully saved");
+            });
+        }else{
+            console.log('its NOT new property');
+            return res.send("succesfully saved");
+        }
+    });
+})
+
+
   /**
     * Get asset by id
     */

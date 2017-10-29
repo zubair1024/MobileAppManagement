@@ -592,7 +592,7 @@ define('ad-admin/ad-admin',['exports', 'aurelia-framework', '../http', 'aurelia-
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.AdAdmin = undefined;
+  exports.BlobToUrlValueConverter = exports.FileListToArrayValueConverter = exports.AdAdmin = undefined;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -607,10 +607,9 @@ define('ad-admin/ad-admin',['exports', 'aurelia-framework', '../http', 'aurelia-
       _classCallCheck(this, AdAdmin);
 
       this.loading = true;
-      this.model = {
-        features: App.config.features
-      };
+      this.model = {};
       this.update = false;
+      this.validation = {};
 
       this.client = http.client;
       this.fetchAPI = httpClient;
@@ -741,21 +740,21 @@ define('ad-admin/ad-admin',['exports', 'aurelia-framework', '../http', 'aurelia-
       }
 
       if (this.update) {
-        this.client.put('/asset/id/' + this.model._id, this.model).then(function (data) {
+        this.client.put('/ad/id/' + this.model._id, this.model).then(function (data) {
           _this2.loading = false;
           if (data && data.message) {
             Materialize.toast(data.message, 5000);
 
-            window.location.hash = '#/asset-list';
+            window.location.hash = '#/ad-list';
           }
         });
       } else {
-        this.client.post('/asset/', this.model).then(function (data) {
+        this.client.post('/ad/', this.model).then(function (data) {
           _this2.loading = false;
           if (data && data.message) {
             Materialize.toast(data.message, 5000);
 
-            window.location.hash = '#/asset-list';
+            window.location.hash = '#/ad-list';
           }
         });
       }
@@ -764,18 +763,104 @@ define('ad-admin/ad-admin',['exports', 'aurelia-framework', '../http', 'aurelia-
     AdAdmin.prototype.delete = function _delete() {
       var _this3 = this;
 
-      this.client.delete('/asset/id/' + this.model._id).then(function (data) {
+      this.client.delete('/ad/id/' + this.model._id).then(function (data) {
         _this3.loading = false;
         if (data && data.message) {
           Materialize.toast(data.message, 5000);
 
-          window.location.hash = '#/asset-list';
+          window.location.hash = '#/ad-list';
         }
       });
     };
 
+    AdAdmin.prototype.validateInformation = function validateInformation(images) {
+      var me = this;
+      this.loading = true;
+      console.log('validateInformation');
+      var valid = true;
+
+      this.validation.name = false;
+      this.validation.linkedUrl = false;
+
+      if (!this.model.name || this.model.name === '') {
+        valid = false;
+        this.validation.name = true;
+      }
+
+      if (!this.model.linkedUrl || this.model.linkedUrl === '') {
+        valid = false;
+        this.validation.linkedUrl = true;
+      }
+
+      if (valid) {
+        var formData = new FormData();
+        if (me.images) {
+          formData.append('images', me.images[0], 'deed_' + me.model.name + '.jpg');
+        }
+        formData.append('model', JSON.stringify(me.model));
+
+        if (this.tagger) {
+          this.model.tags = this.tagger.getTags().values;
+        }
+
+        if (!this.update) {
+
+          $.ajax({
+            url: 'http://localhost/ad',
+            method: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function success(data) {
+              if (data) {
+                Materialize.toast(data, 5000);
+
+                window.location.hash = '#/ad-list';
+              }
+            },
+            error: function error(err) {
+              console.log(err);
+            }
+          });
+        }
+      } else {
+        Materialize.toast('Please fill up all the necessary information', 3000);
+      }
+    };
+
     return AdAdmin;
   }()) || _class);
+
+  var FileListToArrayValueConverter = exports.FileListToArrayValueConverter = function () {
+    function FileListToArrayValueConverter() {
+      _classCallCheck(this, FileListToArrayValueConverter);
+    }
+
+    FileListToArrayValueConverter.prototype.toView = function toView(fileList) {
+      var files = [];
+      if (!fileList) {
+        return files;
+      }
+      for (var i = 0; i < fileList.length; i++) {
+        files.push(fileList.item(i));
+      }
+      return files;
+    };
+
+    return FileListToArrayValueConverter;
+  }();
+
+  var BlobToUrlValueConverter = exports.BlobToUrlValueConverter = function () {
+    function BlobToUrlValueConverter() {
+      _classCallCheck(this, BlobToUrlValueConverter);
+    }
+
+    BlobToUrlValueConverter.prototype.toView = function toView(blob) {
+      return URL.createObjectURL(blob);
+    };
+
+    return BlobToUrlValueConverter;
+  }();
 });
 define('ad-list/ad-list',['exports', 'aurelia-framework', '../http', 'chart.js', 'aurelia-router'], function (exports, _aureliaFramework, _http, _chart, _aureliaRouter) {
   'use strict';
@@ -4977,7 +5062,7 @@ define('user-admin/user-admin',['exports', 'aurelia-framework', '../http', 'aure
 });
 define('text!app.css', ['module'], function(module) { module.exports = "body{\r\n    background-color: #fff;\r\n}\r\n\r\nfooter{\r\n  z-index: 3;\r\n    position:fixed;\r\n    padding-top:50px;\r\n    background-color:red;\r\n    bottom:0px;\r\n    left:0px;\r\n    right:0px;\r\n    margin-bottom:0px;\r\n}\r\n\r\nfooter.page-footer .footer-copyright {\r\n    height: 35px;\r\n    line-height: 35px;\r\n}"; });
 define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./app.css\"></require><require from=\"./app-header/app-header\"></require><require from=\"./app-navbar/app-navbar\"></require><require from=\"./app-notifications/app-notifications\"></require><require from=\"./app-footer/app-footer\"></require><app-header></app-header><div id=\"main\"><div class=\"wrapper\"><app-navbar></app-navbar><section id=\"content\"><div class=\"container\"><div class=\"section\"><router-view></router-view></div></div></section><app-notifications></app-notifications></div></div><app-footer></app-footer></template>"; });
-define('text!ad-admin/ad-admin.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"loading\" class=\"loader\"><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"progress\"><div class=\"indeterminate\"></div></div></div></div></div><div show.bind=\"!loading\"><div class=\"row\"><div class=\"col s12 m7 l7\"><div class=\"card-panel\"><h4 class=\"header2\">Ad Attributes</h4><div class=\"row\"><form class=\"col s12\"><div class=\"input-field col s12\"><div class=\"card\"><div class=\"card-content\"><h4 class=\"header2\">Ad Image</h4><div class=\"input-field col s12\"><img class=\"materialboxed\" width=\"100\" height=\"100\" src=\"./uploads/users/${model.imageUrl}\"></div><div class=\"input-field col s12\"><input class=\"input\" type=\"file\" files.bind=\"images\"> <button class=\"btn cyan waves-effect waves-light right upload-btn\" click.delegate=\"uploadAvatar(images)\">Upload</button></div></div></div></div><div class=\"input-field col s12\">Name * <input id=\"adname\" type=\"text\" value.bind=\"model.name\" name=\"name\" required></div><div class=\"input-field col s12\">Linked URL * <input id=\"linkedUrl\" type=\"text\" value.bind=\"model.model\" name=\"model\" required></div><div class=\"input-field col s12\"><div id=\"admin-tags\"></div></div></form></div></div></div><div class=\"col s12 m6 l6\"></div></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><div show.bind=\"!update\"><button class=\"btn cyan waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Add</button></div><div show.bind=\"update\"><button class=\"btn blue waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Update</button> <button class=\"btn red waves-effect waves-light\" click.delegate=\"delete()\">Delete</button></div></div></div></div></div></template>"; });
+define('text!ad-admin/ad-admin.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"loading\" class=\"loader\"><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"progress\"><div class=\"indeterminate\"></div></div></div></div></div><div show.bind=\"!loading\"><div class=\"row\"><div class=\"col s12 m7 l7\"><div class=\"card-panel\"><h4 class=\"header2\">Ad Attributes</h4><div class=\"row\"><form class=\"col s12\"><div class=\"input-field col s12\">Name * <input id=\"ad_name\" type=\"text\" value.bind=\"model.name\" name=\"name\" required></div><div class=\"input-field col s12\">Linked URL * <input id=\"ad_linkedUrl\" type=\"text\" value.bind=\"model.linkedUrl\" name=\"linkedUrl\" required></div><div class=\"input-field col s12\"><div id=\"admin-tags\"></div></div><div class=\"input-field col s12\"><h4 class=\"header2\">Ad Image</h4><div class=\"input-field col s12\"><li repeat.for=\"file of images | fileListToArray\"><img src.bind=\"file | blobToUrl\" width=\"100\" height=\"100\"><img></li></div><div class=\"input-field col s12\"><input class=\"input\" type=\"file\" files.bind=\"images\"></div></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><div show.bind=\"!update\"><button data-toggle=\"tab\" class=\"btn cyan waves-effect waves-light right\" click.delegate=\"validateInformation(images)\">Add</button></div><div show.bind=\"update\"><button data-toggle=\"tab\" class=\"btn btn--circle btn-primary submit-property__button\" click.delegate=\"validateInformation(images)\">Update</button> <button class=\"btn red waves-effect waves-light\" click.delegate=\"delete()\">Delete</button></div></div></div></div></form></div></div></div></div></div></template>"; });
 define('text!ad-admin/ad-admin.css', ['module'], function(module) { module.exports = ""; });
 define('text!ad-list/ad-list.css', ['module'], function(module) { module.exports = ""; });
 define('text!ad-list/ad-list.html', ['module'], function(module) { module.exports = "<template><div class=\"row\"><div class=\"input-field col s12\"><div id=\"list-tags\"></div></div></div><div class=\"card\"><div id=\"assetGrid\"></div><script type=\"text/x-kendo-template\" id=\"template\"><div class=\"row\">\r\n                <div class=\"col s0 m12 l6\">\r\n                    <ul id=\"projects-collection\" class=\"collection\">\r\n                        <li class=\"collection-item avatar\">\r\n                            <span class=\"secondary-content\">\r\n                  <div class=\"row\">\r\n                      <div class=\"col s6\">\r\n                        <a class=\"btn waves-effect waves-light btn-small cyan\"  href='\\\\#ad-details/#:_id#'>View</a>\r\n                      </div>\r\n                      <div class=\"col s5\" style=\"display: #=(App.currentUser.privileges.indexOf(1) > -1)? 'hidden':'none'#\">\r\n                        <a class=\"btn btn-small waves-effect waves-light cyan darken-4\" href='\\\\#ad-admin?id=#:_id#'>Edit</a>\r\n                      </div>\r\n                    </div>\r\n                </span>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Asset Name</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.name || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Control Panel Manufacturer</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.controlPanelManufacturer || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Year of Manufacture</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.yearOfManufacture || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Power Rating</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.powerRating || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Generator Engine Rating</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#:data.generatorEngineRating || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Generator Frequency</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">#: data.generatorFrequency  || '-'#</p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Tags</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">\r\n                                        <!--<span class=\"task-cat cyan\">#: tags #</span> -->\r\n                                        #if(typeof data.tags != 'undefined') {# #for (var i=0,len=data.tags.length; i\r\n                                        <len;i++){ # <span class=\"task-cat cyan\">#: data.tags[i] #</span>\r\n                                            # } # # } #\r\n                                    </p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                        <li class=\"collection-item grid-details-item\">\r\n                            <div class=\"row\">\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">Projects</p>\r\n                                </div>\r\n                                <div class=\"col s6\">\r\n                                    <p class=\"collections-content\">\r\n                                        <!--<span class=\"task-cat cyan\">#: _projects #</span> -->\r\n                                        #if(typeof data._projects != 'undefined') {# #for (var i=0,len=data._projects.length; i\r\n                                        <len;i++){ # <span class=\"task-cat cyan\">#: data._projects[i].name #</span>\r\n                                            # } # # } #\r\n                                    </p>\r\n                                </div>\r\n                            </div>\r\n                        </li>\r\n                    </ul>\r\n                </div>\r\n            </div></script></div></template>"; });

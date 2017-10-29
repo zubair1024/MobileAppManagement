@@ -8,11 +8,14 @@ export class AdAdmin {
 
   //asset model
   model = {
-    features: App.config.features
   };
 
   //creating (false) or updating flag (true)
   update = false;
+
+  image;
+
+  validation = {};
 
   //asset tags
   tagger;
@@ -77,7 +80,7 @@ export class AdAdmin {
     $(this.generatorFrequency).kendoDropDownList({
       dataSource: App.config.generatorFrequency,
       // index: 0,
-      change: function() {
+      change: function () {
         //set the changed value
         me.model.generatorFrequency = this.value();
       }
@@ -86,7 +89,7 @@ export class AdAdmin {
     $(this.generatorEngineRating).kendoDropDownList({
       dataSource: App.config.generatorEngineRating,
       // index: 0,
-      change: function() {
+      change: function () {
         //set the changed value
         me.model.generatorEngineRating = this.value();
       }
@@ -95,7 +98,7 @@ export class AdAdmin {
     $(this.status).kendoDropDownList({
       dataSource: App.config.generatorStatus,
       // index: 0,
-      change: function() {
+      change: function () {
         //set the changed value
         me.model.status = this.value();
       }
@@ -104,7 +107,7 @@ export class AdAdmin {
     $(this.interfaceType).kendoDropDownList({
       dataSource: App.config.interfaceType,
       // index: 0,
-      change: function() {
+      change: function () {
         //set the changed value
         me.model.interfaceType = this.value();
       }
@@ -122,17 +125,17 @@ export class AdAdmin {
       let filename;
 
       switch (image.type) {
-      case 'image/png':
-        filename = this.model._id + '.png';
-        break;
+        case 'image/png':
+          filename = this.model._id + '.png';
+          break;
 
-      case 'image/jpeg':
-        filename = this.model._id + '.jpg';
-        break;
+        case 'image/jpeg':
+          filename = this.model._id + '.jpg';
+          break;
 
-      default:
-        Materialize.toast('Please upload a .jpg or .png file', 3000);
-        break;
+        default:
+          Materialize.toast('Please upload a .jpg or .png file', 3000);
+          break;
       }
       if (filename && this.model._id) {
         let me = this;
@@ -174,39 +177,125 @@ export class AdAdmin {
 
     if (this.update) {
       //update
-      this.client.put(`/asset/id/${this.model._id}`, this.model).then(data => {
+      this.client.put(`/ad/id/${this.model._id}`, this.model).then(data => {
         this.loading = false;
         if (data && data.message) {
           Materialize.toast(data.message, 5000);
           //go to the list
-          window.location.hash = '#/asset-list';
+          window.location.hash = '#/ad-list';
         }
       });
     } else {
       //create
-      this.client.post('/asset/', this.model).then(data => {
+      this.client.post('/ad/', this.model).then(data => {
         this.loading = false;
         if (data && data.message) {
           Materialize.toast(data.message, 5000);
           //go to the list
-          window.location.hash = '#/asset-list';
+          window.location.hash = '#/ad-list';
         }
       });
     }
   }
+
 
   /**
    * Delete the asset
    */
   delete() {
     //create
-    this.client.delete(`/asset/id/${this.model._id}`).then(data => {
+    this.client.delete(`/ad/id/${this.model._id}`).then(data => {
       this.loading = false;
       if (data && data.message) {
         Materialize.toast(data.message, 5000);
         //go to the list
-        window.location.hash = '#/asset-list';
+        window.location.hash = '#/ad-list';
       }
     });
   }
+
+  validateInformation(images) {
+    let me = this;
+    this.loading = true;
+    console.log('validateInformation');
+    let valid = true;
+
+    this.validation.name = false;
+    this.validation.linkedUrl = false;
+
+    //name
+    if (!this.model.name || this.model.name === '') {
+      valid = false;
+      this.validation.name = true;
+    }
+
+
+    //linkedUrl
+    if (!this.model.linkedUrl || this.model.linkedUrl === '') {
+      valid = false;
+      this.validation.linkedUrl = true;
+    }
+
+
+    if (valid) {
+      //neeed to do something aboutt the images before doing this
+      let formData = new FormData();
+      if (me.images) {
+        formData.append('images', me.images[0], `deed_${me.model.name}.jpg`);
+      }
+      formData.append('model', JSON.stringify(me.model));
+
+
+
+
+      //get tags
+      if (this.tagger) {
+        this.model.tags = this.tagger.getTags().values;
+      }
+
+      if (!this.update) {
+
+        $.ajax({
+          url: 'http://localhost/ad',
+          method: 'POST',
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function (data) {
+            if (data) {
+              Materialize.toast(data, 5000);
+              //go to the list
+              window.location.hash = '#/ad-list';
+            }
+          },
+          error: function (err) {
+            console.log(err);
+          }
+        });
+      }
+    } else {
+      Materialize.toast('Please fill up all the necessary information', 3000);
+    }
+  }
 }
+
+
+export class FileListToArrayValueConverter {
+  toView(fileList) {
+    let files = [];
+    if (!fileList) {
+      return files;
+    }
+    for (let i = 0; i < fileList.length; i++) {
+      files.push(fileList.item(i));
+    }
+    return files;
+  }
+}
+
+export class BlobToUrlValueConverter {
+  toView(blob) {
+    return URL.createObjectURL(blob);
+  }
+}
+
