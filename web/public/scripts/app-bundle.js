@@ -742,6 +742,120 @@ define('ad-admin/ad-admin',['exports', 'aurelia-framework', '../http', 'aurelia-
     return BlobToUrlValueConverter;
   }();
 });
+define('administration/administration',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.Administration = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var Administration = exports.Administration = (_dec = (0, _aureliaFramework.inject)(_http.Http), _dec(_class = function () {
+    function Administration(http) {
+      _classCallCheck(this, Administration);
+
+      this.http = http;
+    }
+
+    Administration.prototype.attached = function attached() {
+      App.currentView = this;
+
+      $('.tabstrip').kendoTabStrip({
+        animation: {
+          open: {
+            effects: 'fadeIn'
+          }
+        }
+      });
+
+      this.renderUsers();
+    };
+
+    Administration.prototype.renderUsers = function renderUsers(tags) {
+      var config = $.extend(true, {
+        detailTemplate: kendo.template($('#template').html()),
+        columns: [{
+          field: 'loginName',
+          title: 'Login Name',
+          width: 150,
+          filterable: {
+            cell: {
+              operator: 'contains'
+            }
+          }
+        }, {
+          field: 'name',
+          title: 'Name',
+          width: 150,
+          filterable: {
+            cell: {
+              operator: 'contains'
+            }
+          }
+        }, {
+          field: 'firstName',
+          title: 'First Name',
+          width: 150,
+          filterable: {
+            cell: {
+              operator: 'contains'
+            }
+          }
+        }, {
+          field: 'lastName',
+          title: 'Last Name',
+          width: 150,
+          filterable: {
+            cell: {
+              operator: 'contains'
+            }
+          }
+        }, {
+          field: 'phoneNo',
+          title: 'Phone Number',
+          width: 150,
+          filterable: {
+            cell: {
+              operator: 'contains'
+            }
+          }
+        }, {
+          field: 'updated_at',
+          title: 'Modified Time',
+          template: "# if (updated_at){# #: moment(updated_at).format('DD/M/YYYY h:mm:ss a') # #}#",
+          filterable: {
+            extra: 'true',
+            messages: {
+              info: 'Show items between dates:'
+            }
+          }
+        }]
+      }, App.config.grid);
+
+      config.toolbar.push({
+        template: '<a class="k-button" href="\\#/user-admin"><span class="k-icon k-i-plus-outline"></span> Create New</a>'
+      });
+
+      if (tags) {
+        config.dataSource.filter = { field: 'tags', operator: 'eq', value: tags };
+      }
+
+      config.dataSource.transport.read.url = App.config.apiUrl + '/user';
+
+      this.grid = $('#appUsers').kendoGrid(config);
+    };
+
+    return Administration;
+  }()) || _class);
+});
 define('ad-list/ad-list',['exports', 'aurelia-framework', '../http', 'chart.js', 'aurelia-router'], function (exports, _aureliaFramework, _http, _chart, _aureliaRouter) {
   'use strict';
 
@@ -858,119 +972,22 @@ define('ad-list/ad-list',['exports', 'aurelia-framework', '../http', 'chart.js',
     return AdList;
   }()) || _class);
 });
-define('administration/administration',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
-  'use strict';
+define('app-footer/app-footer',["exports"], function (exports) {
+    "use strict";
 
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.Administration = undefined;
+    Object.defineProperty(exports, "__esModule", {
+        value: true
+    });
 
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var Administration = exports.Administration = (_dec = (0, _aureliaFramework.inject)(_http.Http), _dec(_class = function () {
-    function Administration(http) {
-      _classCallCheck(this, Administration);
-
-      this.http = http;
-    }
-
-    Administration.prototype.attached = function attached() {
-      App.currentView = this;
-
-      $('.tabstrip').kendoTabStrip({
-        animation: {
-          open: {
-            effects: 'fadeIn'
-          }
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
         }
-      });
+    }
 
-      this.renderUsers();
+    var AppFooter = exports.AppFooter = function AppFooter() {
+        _classCallCheck(this, AppFooter);
     };
-
-    Administration.prototype.renderUsers = function renderUsers(tags) {
-      var config = $.extend(true, {
-        detailTemplate: kendo.template($('#template').html()),
-        columns: [{
-          field: 'loginName',
-          title: 'Login Name',
-          width: 150,
-          filterable: {
-            cell: {
-              operator: 'contains'
-            }
-          }
-        }, {
-          field: 'name',
-          title: 'Name',
-          width: 150,
-          filterable: {
-            cell: {
-              operator: 'contains'
-            }
-          }
-        }, {
-          field: 'firstName',
-          title: 'First Name',
-          width: 150,
-          filterable: {
-            cell: {
-              operator: 'contains'
-            }
-          }
-        }, {
-          field: 'lastName',
-          title: 'Last Name',
-          width: 150,
-          filterable: {
-            cell: {
-              operator: 'contains'
-            }
-          }
-        }, {
-          field: 'phoneNo',
-          title: 'Phone Number',
-          width: 150,
-          filterable: {
-            cell: {
-              operator: 'contains'
-            }
-          }
-        }, {
-          field: 'updated_at',
-          title: 'Modified Time',
-          template: "# if (updated_at){# #: moment(updated_at).format('DD/M/YYYY h:mm:ss a') # #}#",
-          filterable: {
-            extra: 'true',
-            messages: {
-              info: 'Show items between dates:'
-            }
-          }
-        }]
-      }, App.config.grid);
-
-      config.toolbar.push({
-        template: '<a class="k-button" href="\\#/user-admin"><span class="k-icon k-i-plus-outline"></span> Create New</a>'
-      });
-
-      if (tags) {
-        config.dataSource.filter = { field: 'tags', operator: 'eq', value: tags };
-      }
-
-      config.dataSource.transport.read.url = App.config.apiUrl + '/user';
-
-      this.grid = $('#appUsers').kendoGrid(config);
-    };
-
-    return Administration;
-  }()) || _class);
 });
 define('alarms/alarms',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
   'use strict';
@@ -1060,22 +1077,93 @@ define('alarms/alarms',['exports', 'aurelia-framework', '../http'], function (ex
     return Alarms;
   }()) || _class);
 });
-define('app-footer/app-footer',["exports"], function (exports) {
-    "use strict";
+define('app-navbar/app-navbar',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
+  'use strict';
 
-    Object.defineProperty(exports, "__esModule", {
-        value: true
-    });
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.AppNavbar = undefined;
 
-    function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var AppNavbar = exports.AppNavbar = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _http.Http), _dec(_class = function () {
+    function AppNavbar(aurelia, http) {
+      _classCallCheck(this, AppNavbar);
+
+      this.loading = true;
+      this.user = {};
+      this.alarmsCount = 0;
+
+      var me = this;
+      this.aurelia = aurelia;
+      this.http = http;
     }
 
-    var AppFooter = exports.AppFooter = function AppFooter() {
-        _classCallCheck(this, AppFooter);
+    AppNavbar.prototype.attached = function attached() {
+      console.info('navbar activate');
+      var userData = localStorage.getItem('currentUser');
+
+      if (!userData) {
+        this.aurelia.setRoot('login/login');
+      } else {
+        App.currentUser = this.user = JSON.parse(userData);
+      }
+      this.loading = false;
+
+      $('#supportDialog').kendoDialog({
+        width: '800rem',
+        title: 'Contact Support',
+        closable: true,
+        modal: true,
+        content: '<iframe title="Feedback Form" class="freshwidget-embedded-form" \n      id="freshwidget-embedded-form" src="https://razrlab.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&screenshot=no" \n      scrolling="no" height="500px" width="100%" frameborder="0" ></iframe>'
+      });
+
+      $(this.supportDialog).data('kendoDialog') && $(this.supportDialog).data('kendoDialog').close();
     };
+
+    AppNavbar.prototype.getAlarmsCount = function getAlarmsCount() {
+      var me = this;
+      this.http.client.get('/alarm/count').then(function (res) {
+        if (res) {
+          me.alarmsCount = res.data;
+        }
+      });
+    };
+
+    AppNavbar.prototype.logout = function logout() {
+      var _this = this;
+
+      console.info('user logout');
+
+      this.http.client.post('/user/logout', this.model).then(function (res) {
+        _this.loading = false;
+        if (res) {
+          localStorage.removeItem('currentUser');
+          delete App.currentUser;
+          _this.aurelia.setRoot('login/login');
+        }
+      });
+    };
+
+    AppNavbar.prototype.showSupportDialog = function showSupportDialog() {
+      $(this.supportDialog).data('kendoDialog') && $(this.supportDialog).data('kendoDialog').open();
+    };
+
+    AppNavbar.prototype.deattached = function deattached() {
+      console.log('navbar deattached');
+
+      clearInterval(this.alarmCountPoller);
+    };
+
+    return AppNavbar;
+  }()) || _class);
 });
 define('app-header/app-header',['exports', 'aurelia-framework', 'aurelia-router'], function (exports, _aureliaFramework, _aureliaRouter) {
   'use strict';
@@ -1168,94 +1256,6 @@ define('app-header/app-header',['exports', 'aurelia-framework', 'aurelia-router'
     };
 
     return AppHeader;
-  }()) || _class);
-});
-define('app-navbar/app-navbar',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.AppNavbar = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var AppNavbar = exports.AppNavbar = (_dec = (0, _aureliaFramework.inject)(_aureliaFramework.Aurelia, _http.Http), _dec(_class = function () {
-    function AppNavbar(aurelia, http) {
-      _classCallCheck(this, AppNavbar);
-
-      this.loading = true;
-      this.user = {};
-      this.alarmsCount = 0;
-
-      var me = this;
-      this.aurelia = aurelia;
-      this.http = http;
-    }
-
-    AppNavbar.prototype.attached = function attached() {
-      console.info('navbar activate');
-      var userData = localStorage.getItem('currentUser');
-
-      if (!userData) {
-        this.aurelia.setRoot('login/login');
-      } else {
-        App.currentUser = this.user = JSON.parse(userData);
-      }
-      this.loading = false;
-
-      $('#supportDialog').kendoDialog({
-        width: '800rem',
-        title: 'Contact Support',
-        closable: true,
-        modal: true,
-        content: '<iframe title="Feedback Form" class="freshwidget-embedded-form" \n      id="freshwidget-embedded-form" src="https://razrlab.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&screenshot=no" \n      scrolling="no" height="500px" width="100%" frameborder="0" ></iframe>'
-      });
-
-      $(this.supportDialog).data('kendoDialog') && $(this.supportDialog).data('kendoDialog').close();
-    };
-
-    AppNavbar.prototype.getAlarmsCount = function getAlarmsCount() {
-      var me = this;
-      this.http.client.get('/alarm/count').then(function (res) {
-        if (res) {
-          me.alarmsCount = res.data;
-        }
-      });
-    };
-
-    AppNavbar.prototype.logout = function logout() {
-      var _this = this;
-
-      console.info('user logout');
-
-      this.http.client.post('/user/logout', this.model).then(function (res) {
-        _this.loading = false;
-        if (res) {
-          localStorage.removeItem('currentUser');
-          delete App.currentUser;
-          _this.aurelia.setRoot('login/login');
-        }
-      });
-    };
-
-    AppNavbar.prototype.showSupportDialog = function showSupportDialog() {
-      $(this.supportDialog).data('kendoDialog') && $(this.supportDialog).data('kendoDialog').open();
-    };
-
-    AppNavbar.prototype.deattached = function deattached() {
-      console.log('navbar deattached');
-
-      clearInterval(this.alarmCountPoller);
-    };
-
-    return AppNavbar;
   }()) || _class);
 });
 define('app-notifications/app-notifications',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
@@ -4543,104 +4543,6 @@ define('project-admin/project-admin',['exports', 'aurelia-framework', '../http',
     return ProjectAdmin;
   }()) || _class);
 });
-define('project-list/project-list',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.ProjectList = undefined;
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var _dec, _class;
-
-  var ProjectList = exports.ProjectList = (_dec = (0, _aureliaFramework.inject)(_http.Http), _dec(_class = function () {
-    function ProjectList(http) {
-      _classCallCheck(this, ProjectList);
-
-      this.http = http;
-    }
-
-    ProjectList.prototype.attached = function attached() {
-      var me = this;
-
-      this.tagger = new Taggle('list-tags', {
-        allowDuplicates: false,
-
-        onTagAdd: function onTagAdd(event, tag) {
-          if (me.tagger) {
-            me.renderGrid(me.tagger.getTags().values);
-          }
-        },
-
-        onTagRemove: function onTagRemove(event, tag) {
-          me.renderGrid(me.tagger.getTags().values);
-        }
-      });
-
-      this.renderGrid();
-    };
-
-    ProjectList.prototype.renderGrid = function renderGrid(tags) {
-      console.log('render grid');
-
-      var config = $.extend(true, {
-        detailTemplate: kendo.template($('#template').html()),
-        columns: [{
-          template: "<a href='\\#asset-list/#:_id#'>#:name#</a>",
-          field: 'name',
-          title: 'Project Name',
-          width: 150,
-          filterable: {
-            cell: {
-              showOperators: false,
-              operator: 'contains',
-              suggestionOperator: 'contains'
-            }
-          }
-        }, {
-          field: 'assets',
-          title: 'Assets',
-          filterable: false,
-          template: function template(dataItem) {
-            var html = [];
-            for (var i = 0; i < dataItem.assets.length; i++) {
-              if (dataItem.assets[i]) {
-                html.push('<a href=\'#asset-details/' + dataItem.assets[i]._id + '\'>' + dataItem.assets[i].name + '</a>');
-              }
-            }
-            return html.join(', ');
-          }
-        }]
-      }, App.config.grid);
-
-      if (App.currentUser.privileges.indexOf(2) > -1) {
-        config.toolbar.push({
-          template: '<a class="k-button" href="\\#/project-admin"><span class="k-icon k-i-plus-outline"></span> Create New</a>'
-        });
-      }
-
-      config.dataSource.schema.model.fields = {
-        name: { type: 'string' }
-      };
-
-      if (tags) {
-        config.dataSource.filter = { field: 'tags', operator: 'eq', value: tags };
-      }
-
-      config.dataSource.transport.read.url = App.config.apiUrl + '/project';
-
-      this.grid = $('#projectGrid').kendoGrid(config);
-    };
-
-    return ProjectList;
-  }()) || _class);
-});
 define('report-asset-utilization/report-asset-utilization',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
   'use strict';
 
@@ -4752,6 +4654,104 @@ define('report-asset-utilization/report-asset-utilization',['exports', 'aurelia-
     };
 
     return ReportAssetUtilization;
+  }()) || _class);
+});
+define('project-list/project-list',['exports', 'aurelia-framework', '../http'], function (exports, _aureliaFramework, _http) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.ProjectList = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var _dec, _class;
+
+  var ProjectList = exports.ProjectList = (_dec = (0, _aureliaFramework.inject)(_http.Http), _dec(_class = function () {
+    function ProjectList(http) {
+      _classCallCheck(this, ProjectList);
+
+      this.http = http;
+    }
+
+    ProjectList.prototype.attached = function attached() {
+      var me = this;
+
+      this.tagger = new Taggle('list-tags', {
+        allowDuplicates: false,
+
+        onTagAdd: function onTagAdd(event, tag) {
+          if (me.tagger) {
+            me.renderGrid(me.tagger.getTags().values);
+          }
+        },
+
+        onTagRemove: function onTagRemove(event, tag) {
+          me.renderGrid(me.tagger.getTags().values);
+        }
+      });
+
+      this.renderGrid();
+    };
+
+    ProjectList.prototype.renderGrid = function renderGrid(tags) {
+      console.log('render grid');
+
+      var config = $.extend(true, {
+        detailTemplate: kendo.template($('#template').html()),
+        columns: [{
+          template: "<a href='\\#asset-list/#:_id#'>#:name#</a>",
+          field: 'name',
+          title: 'Project Name',
+          width: 150,
+          filterable: {
+            cell: {
+              showOperators: false,
+              operator: 'contains',
+              suggestionOperator: 'contains'
+            }
+          }
+        }, {
+          field: 'assets',
+          title: 'Assets',
+          filterable: false,
+          template: function template(dataItem) {
+            var html = [];
+            for (var i = 0; i < dataItem.assets.length; i++) {
+              if (dataItem.assets[i]) {
+                html.push('<a href=\'#asset-details/' + dataItem.assets[i]._id + '\'>' + dataItem.assets[i].name + '</a>');
+              }
+            }
+            return html.join(', ');
+          }
+        }]
+      }, App.config.grid);
+
+      if (App.currentUser.privileges.indexOf(2) > -1) {
+        config.toolbar.push({
+          template: '<a class="k-button" href="\\#/project-admin"><span class="k-icon k-i-plus-outline"></span> Create New</a>'
+        });
+      }
+
+      config.dataSource.schema.model.fields = {
+        name: { type: 'string' }
+      };
+
+      if (tags) {
+        config.dataSource.filter = { field: 'tags', operator: 'eq', value: tags };
+      }
+
+      config.dataSource.transport.read.url = App.config.apiUrl + '/project';
+
+      this.grid = $('#projectGrid').kendoGrid(config);
+    };
+
+    return ProjectList;
   }()) || _class);
 });
 define('resources/index',["exports"], function (exports) {
@@ -4916,19 +4916,19 @@ define('user-admin/user-admin',['exports', 'aurelia-framework', '../http', 'aure
     return UserAdmin;
   }()) || _class);
 });
-define('text!app.css', ['module'], function(module) { module.exports = "body{\r\n    background-color: #fff;\r\n}\r\n\r\nfooter{\r\n  z-index: 3;\r\n    position:fixed;\r\n    padding-top:50px;\r\n    background-color:red;\r\n    bottom:0px;\r\n    left:0px;\r\n    right:0px;\r\n    margin-bottom:0px;\r\n}\r\n\r\nfooter.page-footer .footer-copyright {\r\n    height: 35px;\r\n    line-height: 35px;\r\n}"; });
 define('text!app.html', ['module'], function(module) { module.exports = "<template><require from=\"./app.css\"></require><require from=\"./app-header/app-header\"></require><require from=\"./app-navbar/app-navbar\"></require><require from=\"./app-notifications/app-notifications\"></require><require from=\"./app-footer/app-footer\"></require><app-header></app-header><div id=\"main\"><div class=\"wrapper\"><app-navbar></app-navbar><section id=\"content\"><div class=\"container\"><div class=\"section\"><router-view></router-view></div></div></section><app-notifications></app-notifications></div></div><app-footer></app-footer></template>"; });
+define('text!app.css', ['module'], function(module) { module.exports = "body{\r\n    background-color: #fff;\r\n}\r\n\r\nfooter{\r\n  z-index: 3;\r\n    position:fixed;\r\n    padding-top:50px;\r\n    background-color:red;\r\n    bottom:0px;\r\n    left:0px;\r\n    right:0px;\r\n    margin-bottom:0px;\r\n}\r\n\r\nfooter.page-footer .footer-copyright {\r\n    height: 35px;\r\n    line-height: 35px;\r\n}"; });
 define('text!ad-admin/ad-admin.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"loading\" class=\"loader\"><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"progress\"><div class=\"indeterminate\"></div></div></div></div></div><div show.bind=\"!loading\"><div class=\"row\"><div class=\"col s12 m7 l7\"><div class=\"card-panel\"><h4 class=\"header2\">Ad Attributes</h4><div class=\"row\"><form class=\"col s12\"><div class=\"input-field col s12\">Name * <input id=\"ad_name\" type=\"text\" value.bind=\"model.name\" name=\"name\" required></div><div class=\"input-field col s12\">Linked URL * <input id=\"ad_linkedUrl\" type=\"text\" value.bind=\"model.linkedUrl\" name=\"linkedUrl\" required></div><div class=\"input-field col s12\"><div id=\"admin-tags\"></div></div><div class=\"input-field col s12\"><h4 class=\"header2\">Ad Image</h4><div class=\"input-field col s12\"><li repeat.for=\"file of images | fileListToArray\"><img src.bind=\"file | blobToUrl\" width=\"100\" height=\"100\"><img></li></div><div class=\"input-field col s12\"><input class=\"input\" type=\"file\" files.bind=\"images\"></div></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><div show.bind=\"!update\"><button data-toggle=\"tab\" class=\"btn cyan waves-effect waves-light right\" click.delegate=\"validateInformation(images)\">Add</button></div><div show.bind=\"update\"><button data-toggle=\"tab\" class=\"btn btn--circle btn-primary submit-property__button\" click.delegate=\"validateInformation(images)\">Update</button> <button class=\"btn red waves-effect waves-light\" click.delegate=\"delete()\">Delete</button></div></div></div></div></form></div></div></div></div></div></template>"; });
 define('text!ad-admin/ad-admin.css', ['module'], function(module) { module.exports = ""; });
+define('text!ad-list/ad-list.html', ['module'], function(module) { module.exports = "<template><div class=\"row\"><div class=\"input-field col s12\"><div id=\"list-tags\"></div></div></div><div class=\"card\"><div id=\"assetGrid\"></div><script type=\"text/x-kendo-template\" id=\"template\"><div class=\"row\">\r\n                    <div class=\"col s0 m12 l6\">\r\n                        <ul id=\"projects-collection\" class=\"collection\">\r\n                            <li class=\"collection-item avatar\">\r\n                                <span class=\"secondary-content\">\r\n                      <div class=\"row\">\r\n                          <div class=\"col s6\">\r\n                            <a class=\"btn waves-effect waves-light btn-small cyan\"  href='\\\\#ad-details/#:_id#'>View</a>\r\n                          </div>\r\n                          <div class=\"col s5\" style=\"display: #=(App.currentUser.privileges.indexOf(1) > -1)? 'hidden':'none'#\">\r\n                            <a class=\"btn btn-small waves-effect waves-light cyan darken-4\" href='\\\\#ad-admin?id=#:_id#'>Edit</a>\r\n                          </div>\r\n                        </div>\r\n                    </span>\r\n                            </li>\r\n                            <li class=\"collection-item grid-details-item\">\r\n                                <div class=\"row\">\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">Ad Name</p>\r\n                                    </div>\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">#:data.name || '-'#</p>\r\n                                    </div>\r\n                                </div>\r\n                            </li>\r\n                     \r\n                            <li class=\"collection-item grid-details-item\">\r\n                                <div class=\"row\">\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">Image</p>\r\n                                    </div>\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">#:data.yearOfManufacture || '-'#</p>\r\n                                        <img src=\"#:data.imageUrl || '-'#\" height=\"100\">\r\n                                    </div>\r\n                                </div>\r\n                            </li>\r\n                            <li class=\"collection-item grid-details-item\">\r\n                                <div class=\"row\">\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">Tags</p>\r\n                                    </div>\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">\r\n                                            <!--<span class=\"task-cat cyan\">#: tags #</span> -->\r\n                                            #if(typeof data.tags != 'undefined') {# #for (var i=0,len=data.tags.length; i\r\n                                            <len;i++){ # <span class=\"task-cat cyan\">#: data.tags[i] #</span>\r\n                                                # } # # } #\r\n                                        </p>\r\n                                    </div>\r\n                                </div>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n                </div></script></div></template>"; });
 define('text!ad-list/ad-list.css', ['module'], function(module) { module.exports = ""; });
-define('text!ad-list/ad-list.html', ['module'], function(module) { module.exports = "<template><div class=\"row\"><div class=\"input-field col s12\"><div id=\"list-tags\"></div></div></div><div class=\"card\"><div id=\"assetGrid\"></div><script type=\"text/x-kendo-template\" id=\"template\"><div class=\"row\">\r\n                    <div class=\"col s0 m12 l6\">\r\n                        <ul id=\"projects-collection\" class=\"collection\">\r\n                            <li class=\"collection-item avatar\">\r\n                                <span class=\"secondary-content\">\r\n                      <div class=\"row\">\r\n                          <div class=\"col s6\">\r\n                            <a class=\"btn waves-effect waves-light btn-small cyan\"  href='\\\\#ad-details/#:_id#'>View</a>\r\n                          </div>\r\n                          <div class=\"col s5\" style=\"display: #=(App.currentUser.privileges.indexOf(1) > -1)? 'hidden':'none'#\">\r\n                            <a class=\"btn btn-small waves-effect waves-light cyan darken-4\" href='\\\\#ad-admin?id=#:_id#'>Edit</a>\r\n                          </div>\r\n                        </div>\r\n                    </span>\r\n                            </li>\r\n                            <li class=\"collection-item grid-details-item\">\r\n                                <div class=\"row\">\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">Ad Name</p>\r\n                                    </div>\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">#:data.name || '-'#</p>\r\n                                    </div>\r\n                                </div>\r\n                            </li>\r\n                     \r\n                            <li class=\"collection-item grid-details-item\">\r\n                                <div class=\"row\">\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">Image</p>\r\n                                    </div>\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">#:data.yearOfManufacture || '-'#</p>\r\n                                        <img src=\"#:data.imageUrl || '-'#\">\r\n                                    </div>\r\n                                </div>\r\n                            </li>\r\n                            <li class=\"collection-item grid-details-item\">\r\n                                <div class=\"row\">\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">Tags</p>\r\n                                    </div>\r\n                                    <div class=\"col s6\">\r\n                                        <p class=\"collections-content\">\r\n                                            <!--<span class=\"task-cat cyan\">#: tags #</span> -->\r\n                                            #if(typeof data.tags != 'undefined') {# #for (var i=0,len=data.tags.length; i\r\n                                            <len;i++){ # <span class=\"task-cat cyan\">#: data.tags[i] #</span>\r\n                                                # } # # } #\r\n                                        </p>\r\n                                    </div>\r\n                                </div>\r\n                            </li>\r\n                        </ul>\r\n                    </div>\r\n                </div></script></div></template>"; });
-define('text!asset-admin/asset-admin.css', ['module'], function(module) { module.exports = ""; });
 define('text!administration/administration.html', ['module'], function(module) { module.exports = "<template><div class=\"tabstrip\"><ul><li class=\"k-state-active\">Users</li><li>SMTP</li></ul><div><div class=\"card\"><div class=\"collapsible-header active indigo darken-4 white-text\"></div><i class=\"mdi-social-person\"></i>Users</div><div id=\"appUsers\"></div><script type=\"text/x-kendo-template\" id=\"template\"><div class=\"row\">\r\n                        <div class=\"col s0 m12 l6\">\r\n                            <ul id=\"projects-collection\" class=\"collection\">\r\n                                <li class=\"collection-item avatar\">\r\n                                    <span class=\"secondary-content\">\r\n                  <div class=\"row\">\r\n                      <!--<div class=\"col s6\">\r\n                        <a class=\"btn btn-small cyan darken-1 waves-effect waves-light\"  href='\\\\#asset-details/#:_id#'>View</a>\r\n                      </div>-->\r\n                      <div class=\"col s5\">\r\n                        <a class=\"btn btn-small cyan darken-2 waves-effect waves-light\" href='\\\\#user-admin/#:_id#'>Edit</a>\r\n                      </div>\r\n                    </div>\r\n                </span>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Image</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <img src=\"./uploads/users/#if(imageUrl){# #:imageUrl# #} else{# #:'default.png'# #}#\" onError=\"this.src = './uploads/users/default.png'\"\r\n                                                class=\"circle responsive-img valign profile-image\">\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">DOB</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:dob#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Email</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:email#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Distance Unit</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:distance#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Pressure Unit</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:pressure#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Speed Unit</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:speed#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                                <li class=\"collection-item grid-details-item\">\r\n                                    <div class=\"row\">\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">Volume Unit</p>\r\n                                        </div>\r\n                                        <div class=\"col s6\">\r\n                                            <p class=\"collections-content\">#:volume#</p>\r\n                                        </div>\r\n                                    </div>\r\n                                </li>\r\n                            </ul>\r\n                        </div>\r\n                    </div></script></div></div><div><div class=\"card-panel\"><h4 class=\"header2\">SMTP Settings</h4><div class=\"row\"><form class=\"col s12\"><div class=\"row\"><div class=\"input-field col s12\">Username <input id=\"asset_name\" type=\"text\" value.bind=\"smtp.user\" name=\"user\" required></div><div class=\"input-field col s12\">Password <input id=\"smtp_name\" type=\"password\" value.bind=\"smtp.pass\" name=\"pass\" required></div><div class=\"input-field col s12 m6\">Port <input id=\"smtp_name\" type=\"text\" value.bind=\"smtp.port\" name=\"port\" required></div><div class=\"input-field col s12 m6\">Host <input id=\"smtp_name\" type=\"text\" value.bind=\"smtp.host\" name=\"host\" required></div></div></form></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><button class=\"btn cyan waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Update</button></div></div></div></div></div></template>"; });
-define('text!asset-list/asset-list.css', ['module'], function(module) { module.exports = ""; });
+define('text!asset-admin/asset-admin.css', ['module'], function(module) { module.exports = ""; });
 define('text!alarms/alarms.html', ['module'], function(module) { module.exports = "<template><div class=\"card\"><div class=\"collapsible-header active red darken-4 white-text\"><i class=\"mdi-alert-warning\"></i>Active Alarms</div><div id=\"alarms\"></div></div></template>"; });
+define('text!asset-list/asset-list.css', ['module'], function(module) { module.exports = ""; });
+define('text!app-header/app-header.html', ['module'], function(module) { module.exports = "<template><header id=\"header\" class=\"page-topbar\"><div class=\"navbar-fixed\"><nav id=\"headerNavBar\"><div class=\"nav-wrapper\"><h1 class=\"logo-wrapper\"><h1 class=\"logo-wrapper hide-on-med-and-down\"><a href=\"index.html\" class=\"brand-logo darken-1\"><img src=\"images/logo-sm.png\" alt=\"materialize logo\"></a><span class=\"logo-text\">Materialize</span></h1><ul class=\"right hide-on-med-and-down\"><li><a href=\"javascript:void(0);\" click.delegate=\"toggleFullScreen()\" class=\"waves-effect waves-block waves-light toggle-fullscreen\"><i class=\"mdi-action-settings-overscan\"></i></a></li></ul><ul class=\"right\"><li><input id=\"universal-search\" style=\"width:100%\"></li><li><a href=\"#\" data-activates=\"chat-out\" class=\"waves-effect waves-block waves-light chat-collapse\"><i class=\"mdi-communication-chat\"></i></a></li></ul></h1></div></nav></div></header></template>"; });
 define('text!login/user-password.css', ['module'], function(module) { module.exports = "html,body{ \r\n\twidth:100%;\r\n\theight:100%;\r\n\t/*background:#111;*/\r\n}\r\n/* ---- particles.js container ---- */\r\n\r\n#particles-js{\r\n  width: 100%;\r\n  height: 100%;\r\n  background-color: #000;\r\n  background-image: url('');\r\n  background-size: cover;\r\n  background-position: 50% 50%;\r\n  background-repeat: no-repeat;\r\n}\r\n\r\n\r\n#login-page{\r\n  position: absolute;\r\n  width: 300px;\r\n  height: 200px;\r\n  z-index: 15;\r\n  top: 40%;\r\n  left: 50%;\r\n  margin: -100px 0 0 -150px;\r\n}"; });
 define('text!app-footer/app-footer.html', ['module'], function(module) { module.exports = "<template><footer class=\"page-footer\"><div class=\"footer-copyright\"><div class=\"container\">Copyright © 2017 <a class=\"grey-text text-lighten-4\" href=\"#\" target=\"_blank\">RAZRADMIN</a> All rights reserved. <span class=\"right\">Designed and Developed by <a class=\"grey-text text-lighten-4\" href=\"http://razrlab.com\">RAZRLAB</a></span></div></div></footer></template>"; });
-define('text!app-header/app-header.html', ['module'], function(module) { module.exports = "<template><header id=\"header\" class=\"page-topbar\"><div class=\"navbar-fixed\"><nav id=\"headerNavBar\"><div class=\"nav-wrapper\"><h1 class=\"logo-wrapper\"><h1 class=\"logo-wrapper hide-on-med-and-down\"><a href=\"index.html\" class=\"brand-logo darken-1\"><img src=\"images/logo/turquoise-sm.png\" alt=\"materialize logo\"></a><span class=\"logo-text\">Materialize</span></h1><ul class=\"right hide-on-med-and-down\"><li><a href=\"javascript:void(0);\" click.delegate=\"toggleFullScreen()\" class=\"waves-effect waves-block waves-light toggle-fullscreen\"><i class=\"mdi-action-settings-overscan\"></i></a></li></ul><ul class=\"right\"><li><input id=\"universal-search\" style=\"width:100%\"></li><li><a href=\"#\" data-activates=\"chat-out\" class=\"waves-effect waves-block waves-light chat-collapse\"><i class=\"mdi-communication-chat\"></i></a></li></ul></h1></div></nav></div></header></template>"; });
 define('text!app-navbar/app-navbar.html', ['module'], function(module) { module.exports = "<template><aside id=\"left-sidebar-nav\"><ul id=\"slide-out\" class=\"side-nav fixed leftside-navigation\"><li class=\"user-details cyan darken-2\"><div class=\"row\"><div class=\"col col s4 m4 l4\"><img src=\"./uploads/users/${user.imageUrl}\" class=\"circle responsive-img valign profile-image\"></div><div class=\"col col s8 m8 l8\"><ul id=\"profile-dropdown\" class=\"dropdown-content\"><li><a a route-href=\"route: profile\"><i class=\"mdi-action-face-unlock\"></i> Profile</a></li><li show.bind=\"(user.privileges.indexOf(0) > -1)\"><a route-href=\"route: administration\"><i class=\"mdi-action-settings\"></i>Admin</a></li><li><a href=\"#\"><i class=\"mdi-communication-live-help\"></i> Help</a></li><li class=\"divider\"></li><li><a click.delegate=\"logout()\"><i class=\"mdi-hardware-keyboard-tab\"></i> Logout</a></li></ul><a class=\"btn-flat dropdown-button waves-effect waves-light white-text profile-btn\" href=\"#\" data-activates=\"profile-dropdown\">${user.name}<i class=\"mdi-navigation-arrow-drop-down right\"></i></a><p class=\"user-roal\">Administrator</p></div></div></li><li class=\"bold\"><a class=\"waves-effect waves-cyan\" route-href=\"route: overview\"><i class=\"mdi-action-dashboard\"></i> Dashboard</a></li><li class=\"li-hover\"><div class=\"divider\"></div></li><li class=\"li-hover\"><p class=\"ultra-small margin more-text\">Mobile App Management</p></li><li><a route-href=\"route: ad-list\"><i class=\"mdi-action-trending-up\"></i>Ad Management</a></li><li class=\"li-hover\"><div class=\"divider\"></div></li><li class=\"li-hover\"><p class=\"ultra-small margin more-text\">MORE</p></li><li><a><i class=\"mdi-communication-live-help\"></i> Help</a></li><li class=\"li-hover\"><div class=\"divider\"></div></li></ul><a href=\"#\" data-activates=\"slide-out\" class=\"sidebar-collapse btn-floating btn-medium waves-effect waves-light hide-on-large-only darken-2\"><i class=\"mdi-navigation-menu\"></i></a></aside><div class=\"fixed-action-btn\"><a class=\"btn-floating btn-large red\"><i class=\"large mdi-navigation-apps\"></i></a><ul><li><a class=\"btn-floating yellow darken-1 tooltipped\" style=\"transform:scaleY(.4) scaleX(.4) translateY(40px);opacity:0\" data-position=\"left\" data-delay=\"250\" data-tooltip=\"Support\" click.delegate=\"showSupportDialog()\"><i class=\"large mdi-communication-quick-contacts-dialer\"></i></a></li></ul></div><div id=\"supportDialog\" ref=\"supportDialog\"></div></template>"; });
 define('text!app-notifications/app-notifications.html', ['module'], function(module) { module.exports = "<template><aside id=\"right-sidebar-nav\"><ul id=\"chat-out\" class=\"side-nav rightside-navigation\"><li class=\"li-hover\"><a data-activates=\"chat-out\" class=\"chat-close-collapse right\"><i class=\"mdi-navigation-close\"></i></a></li><li class=\"li-hover\"><ul class=\"chat-collapsible\" data-collapsible=\"expandable\"><li><div class=\"collapsible-header teal white-text active\"><i class=\"mdi-social-whatshot\"></i>Recent Activity</div><div class=\"collapsible-body recent-activity\"><div repeat.for=\"item of alarms\"><div class=\"recent-activity-list chat-out-list row\"><div class=\"col s3 recent-activity-list-icon\"><i class=\"mdi-alert-warning\"></i></div><div class=\"col s9 recent-activity-list-text\"><a class=\"chat-close-collapse right\" click.delegate=\"dismissNotification(item._id)\"><i class=\"mdi-navigation-close\"></i></a><p>${App.util.format.dateTime(item.triggerTime, App.currentUser.dateTimeFormat, App.currentUser.timezone)}</p><p>${item.name} for ${item._asset.name}</p></div></div></div></div></li><li><div class=\"collapsible-header red white-text\"><i class=\"mdi-alert-error\"></i>Recent Alarms<i class=\"mdi-hardware-keyboard-arrow-down\"></i></div><div class=\"collapsible-body favorite-associates\"><div repeat.for=\"item of alarms\"><div class=\"favorite-associate-list chat-out-list row\"><div class=\"col s4\"><i class=\"mdi-alert-error medium\"></i></div><div class=\"col s8\"><p><a route-href=\"route: asset-details; params.bind: { id: item._asset._id }\">${item._asset.name}</a></p><p class=\"place\">${item.name}</p><p class=\"place\">${App.util.format.dateTime(item.triggerTime, App.currentUser.dateTimeFormat, App.currentUser.timezone)}</p></div></div></div></div></li></ul></li></ul></aside></template>"; });
 define('text!asset-admin/asset-admin.html', ['module'], function(module) { module.exports = "<template><div show.bind=\"loading\" class=\"loader\"><div class=\"row\"><div class=\"col s12 m12 l12\"><div class=\"progress\"><div class=\"indeterminate\"></div></div></div></div></div><div show.bind=\"!loading\"><div class=\"row\"><div class=\"col s12 m7 l7\"><div class=\"card-panel\"><h4 class=\"header2\">Asset Attributes</h4><div class=\"row\"><form class=\"col s12\"><div class=\"row\"><div class=\"input-field col s12\">Asset Name <input id=\"asset_name\" type=\"text\" value.bind=\"model.name\" name=\"name\" required></div><div class=\"input-field col s12\">Sensor <input id=\"sensor_name\" type=\"text\" value.bind=\"model.sensor\" name=\"sensor\" required></div><div class=\"input-field col s12\">Interface Type <input id=\"interfaceType\" ref=\"interfaceType\" value=\"1\" style=\"width:100%\"></div><div class=\"input-field col s12\">Status <input id=\"status\" ref=\"status\" value=\"1\" style=\"width:100%\"></div></div><div class=\"row\"><div class=\"input-field col s12\">Model <input id=\"modelName_name\" type=\"text\" value.bind=\"model.model\" name=\"model\" required></div><div class=\"input-field col s12\">Manufacturer <input id=\"Manufacturer_input\" type=\"text\" value.bind=\"model.manufacturer\" name=\"manufacturer\" required></div></div><div class=\"row\"><div class=\"input-field col s12\">Control-Panel Manufacturer <input id=\"controlPanelManufacturer_input\" type=\"text\" value.bind=\"model.controlPanelManufacturer\" name=\"controlPanelManufacturer\" required></div><div class=\"input-field col s12\">Year of Manufacture <input id=\"last_name\" type=\"number\" value.bind=\"model.yearOfManufacture\" name=\"yearOfManufacture\" required></div></div><h4 class=\"header2\">Operational Attributes</h4><div class=\"row\"><div class=\"input-field col s12\">Power Rating <input id=\"powerRating_input\" type=\"number\" value.bind=\"model.powerRating\" name=\"powerRating\" required></div><div class=\"input-field col s12\">Generator Capacity <input id=\"generatorCapacity_input\" type=\"number\" value.bind=\"model.generatorCapacity\" name=\"generatorCapacity\" required></div><div class=\"input-field col s12\">Generator Engine Rating <input id=\"generatorEngineRating\" ref=\"generatorEngineRating\" value=\"1\" style=\"width:100%\"></div></div><div class=\"row\"><div class=\"input-field col s12\">Generator Frequency<br><input id=\"generatorFrequency\" ref=\"generatorFrequency\" value=\"1\" style=\"width:100%\"></div><div class=\"input-field col s6\">Power Factor <input id=\"powerFactor_input\" type=\"number\" value.bind=\"model.powerFactor\" name=\"powerFactor\" required></div></div><div class=\"row\"><div class=\"input-field col s12\"><div id=\"admin-tags\"></div></div></div></form></div></div></div><div class=\"col s12 m5 l5\"><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Map Position Status</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.hasMapPosition.enabled\" disabled=\"disabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div></div><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Engine Status</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.engineStatus.enabled\" disabled=\"disabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div></div><div class=\"card\"><div class=\"card-content\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">System Odometer</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"black-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.systemOdometer.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action\"><div class=\"row\"><div class=\"input-field col s12\">Offset (hrs) <input id=\"systemOdometerOffset\" type=\"number\" value.bind=\"model.features.systemOdometer.offset\" name=\"systemOdometerOffset\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Non Report</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.nonReport.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (min) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.nonReport.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Major Service</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.majorService.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (hrs) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.majorService.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Minor Service</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.minorService.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold (hrs) <input id=\"nonReportThreshold\" type=\"number\" value.bind=\"model.features.minorService.threshold\" name=\"nonReportThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Supply Voltage</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highSupplyVoltage.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"highSupplyVoltageThreshold\" type=\"number\" value.bind=\"model.features.highSupplyVoltage.threshold\" name=\"highSupplyVoltageThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Low Supply Voltage</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.lowSupplyVoltage.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"lowSupplyVoltageThreshold\" type=\"number\" value.bind=\"model.features.lowSupplyVoltage.threshold\" name=\"lowSupplyVoltageThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Power Output</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highPowerOutput.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"highPowerOutputThreshold\" type=\"number\" value.bind=\"model.features.highPowerOutput.threshold\" name=\"highPowerOutputThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Low Power Output</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.lowPowerOutput.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"lowPowerOutputThreshold\" type=\"number\" value.bind=\"model.features.lowPowerOutput.threshold\" name=\"lowPowerOutputThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">High Coolant Temperature</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.highCoolantTemperature.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Low Threshold <input id=\"highCoolantTemperatureThreshold\" type=\"number\" value.bind=\"model.features.highCoolantTemperature.threshold\" name=\"highCoolantTemperatureThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Frequency</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.frequency.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">High Threshold <input id=\"frequencyThreshold\" type=\"number\" value.bind=\"model.features.frequency.highThreshold\" name=\"frequencyThreshold\" min=\"10\"></div><div class=\"input-field col s12\">Low Threshold <input id=\"frequencyThreshold\" type=\"number\" value.bind=\"model.features.frequency.lowThreshold\" name=\"frequencyThreshold\" min=\"10\"></div></div></div></div><div class=\"card\"><div class=\"card-content red darken-4 white-text\"><div class=\"row\"><div class=\"col s3\"><p class=\"card-stats-number\">Oil Pressure</p></div><div class=\"col s9\"><div class=\"switch card-switch\"><label class=\"white-text\">Disable<input type=\"checkbox\" checked.bind=\"model.features.oilPressure.enabled\"> <span class=\"lever\"></span> Enable</label></div></div></div></div><div class=\"card-action blue-grey darken-4 white-text\"><div class=\"row\"><div class=\"input-field col s12\">Threshold <input id=\"oilPressureThreshold\" type=\"number\" value.bind=\"model.features.lowOilPressure.threshold\" name=\"oilPressureThreshold\" min=\"10\"></div></div></div></div></div></div><div class=\"row\"><div class=\"input-field col s12 m7 l7\"><div class=\"admin-btns\"><div show.bind=\"!update\"><button class=\"btn cyan waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Create</button></div><div show.bind=\"update\"><button class=\"btn blue waves-effect waves-light right\" name=\"action\" click.delegate=\"submit()\">Update</button> <button class=\"btn red waves-effect waves-light\" click.delegate=\"delete()\">Delete</button></div></div></div></div></div></template>"; });
